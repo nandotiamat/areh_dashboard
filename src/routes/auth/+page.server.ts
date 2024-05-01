@@ -1,23 +1,14 @@
-import { db } from "$lib/firebase.js";
-import { auth } from "$lib/firebase.js";
+
 import { signInWithEmailAndPassword } from "firebase/auth";
 import type { DocumentData } from "firebase-admin/firestore";
 import { collection, getDocs, QuerySnapshot } from "firebase/firestore";
 
 import type { Actions } from "./$types.js";
+import {auth, db} from "$lib/firebase/firebase.js";
 
-export async function load() {
-  const querySnapshot: QuerySnapshot = await getDocs(collection(db, "users"));
-  const users: any[] = [];
-  querySnapshot.docs.forEach((doc: DocumentData) => {
-    users.push(doc.data().email);
-  });
-  console.log("this text is running on the server!");
-  return { users: users };
-}
 
 export const actions: Actions = {
-  default: async ({ cookies, request }) => {
+  login: async ({ cookies, request }) => {
     let data = await request.formData();
     let email = data.get("email");
     let password = data.get("password");
@@ -26,7 +17,30 @@ export const actions: Actions = {
     password = password.toString();
     let user = await signInWithEmailAndPassword(auth, email, password);
     // cookies.set("sessionid", await db.createSession(user), { path: "/" });
-    console.log(user);
+    //console.log(user);
     return { status: 200, body: user.user.email };
   },
+  logout: async ({ cookies }) => {
+        try {
+            // Sign out the user
+            await auth.signOut();
+
+            // Clear any session-related data (if necessary)
+            // cookies.remove("sessionid");
+
+            // Redirect to the login page
+            return {
+                status: 302,
+                headers: {
+                    location: '/auth', // Redirect to the login page
+                },
+            };
+        } catch (error) {
+            console.error('Error logging out:', error);
+            return {
+                status: 500,
+                body: 'Internal Server Error',
+            };
+        }
+    }
 };

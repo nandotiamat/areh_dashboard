@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { deleteApp, getApp, getApps, initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
@@ -21,8 +21,16 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export const app = initializeApp(firebaseConfig);
+let firebaseApp;
+if(!getApps().length){
+  firebaseApp = initializeApp(firebaseConfig);
+} else {
+  firebaseApp = getApp();
+  deleteApp(firebaseApp);
+  firebaseApp = initializeApp(firebaseConfig);
+}
+
+export const app = firebaseApp;
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
-console.log("henlo");

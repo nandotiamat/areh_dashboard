@@ -1,0 +1,44 @@
+<script>
+  import { goto } from '$app/navigation';
+  
+  function redirectToAuth() {
+    goto('/auth');
+  }
+</script>
+
+<style>
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+
+  .title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .button {
+    padding: 10px 20px;
+    font-size: 1.5rem;
+    border: 2px solid #333;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .button:hover {
+    background-color: #0056b3;
+  }
+</style>
+
+<div class="container">
+  <h1 class="title">AREH DASHBOARD</h1>
+  <button class="button" on:click={redirectToAuth}>Go to Auth</button>
+</div>

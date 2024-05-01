@@ -1,8 +1,20 @@
+
+
 <script>
-  export let data;
+  import Authenticate from '../../componenets/Authenticate.svelte';
+  import {goto} from '$app/navigation';
+  import {onMount} from 'svelte';
+
+
 </script>
 
-<h1>Auth</h1>
+
+
+
+
+<Authenticate />
+
+<!-- <h1>Auth</h1>
 <div>
   <form method="POST">
     <input name="email" type="text" placeholder="email" />
@@ -13,4 +25,4 @@
 
 {#each data.users as user}
   <p>{user}</p>
-{/each}
+{/each} -->
