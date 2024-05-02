@@ -1,4 +1,4 @@
-import { getAuth} from "firebase-admin/auth";
+import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import {
   FIREBASE_CLIENT_EMAIL,
@@ -12,7 +12,7 @@ try {
     credential: pkg.credential.cert({
       projectId: FIREBASE_PROJECT_ID,
       clientEmail: FIREBASE_CLIENT_EMAIL,
-      privateKey: FIREBASE_ADMIN_PRIVATE_KEY,
+      privateKey: FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, "\n"),
     }),
   });
 } catch (err: any) {
