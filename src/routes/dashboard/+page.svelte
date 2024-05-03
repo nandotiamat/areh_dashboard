@@ -1,10 +1,12 @@
     <script>
         import { goto } from '$app/navigation';
 
+        export let data;
+
 
         async function handleLogout() {
-            const response = await fetch('/auth?/logout', {
-                method: 'POST',
+            const response = await fetch('/auth', {
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded', // Specify the content type
                 },
@@ -19,6 +21,8 @@
                 console.error('Logout failed');
             }
         }
+
+        console.log(data)
     </script>
 
     <style>
@@ -46,6 +50,9 @@
     </style>
 
     <div class="navbar">
-    <div>Sei loggato in AREH DASHBOARD</div>
+    <div>
+        <h2>AREH DASHBOARD</h2>
+        <p>Utente: {data.email}</p>
+    </div>
     <button class="logout-btn" on:click={handleLogout}>Logout</button>
     </div>

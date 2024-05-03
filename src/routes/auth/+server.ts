@@ -1,0 +1,69 @@
+import { signInWithEmailAndPassword } from "firebase/auth";
+import type { DocumentData } from "firebase-admin/firestore";
+import { collection, getDocs, QuerySnapshot } from "firebase/firestore";
+
+import type { Actions } from "./$types.js";
+import {auth, db} from "$lib/firebase/firebase.js";
+import { adminAuth } from "$lib/server/admin.js";
+import {redirect} from "@sveltejs/kit";
+
+export async function POST({ request }: { request: Request }) {
+
+    let data = await request.formData();
+    let email = data.get("email");
+    let password = data.get("password");
+    if (!email || !password) return { status: 400, body: "Bad Request" };
+    email = email.toString();
+    password = password.toString();
+    let userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+    let user = userCredential.user;
+    let userIdToken = await user.getIdToken();
+
+    if (!user?.getIdToken) {
+        console.info("No idToken found");
+        throw redirect(303, "/auth");
+    }
+
+    const expiresIn = 60 * 60 * 24 * 5 * 1000;
+
+    const sessionCookie = await adminAuth.createSessionCookie(userIdToken, { expiresIn });
+    // console.log(await userIdToken)
+    // console.log(await sessionCookie)
+
+    const options = {
+        maxAge: expiresIn,
+        httpOnly: true,
+        secure: true,
+    };
+
+    const header = new Headers();
+    header.append(
+        "set-cookie",
+        `session=${sessionCookie}; ${JSON.stringify(options)}`,
+    );
+
+    return new Response("auth", {
+        status: 200,
+        headers: header,
+    });
+}
+
+export async function DELETE() {
+    try {
+        await auth.signOut();
+
+        const header = new Headers();
+        header.append("set-cookie", `session=; Max-Age=0`);
+    
+        return new Response("auth", {
+            status: 200,
+            headers: header,
+        });
+    } catch (error) {
+        console.error("Error signing out:", error);
+        return new Response("Error signing out", {
+            status: 500,
+        });
+    }
+}

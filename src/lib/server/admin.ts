@@ -20,6 +20,5 @@ try {
     console.error("Firebase Admin Error: ", err.stack);
   }
 }
-
 export const adminDB = getFirestore();
 export const adminAuth = getAuth();

@@ -1,4 +1,5 @@
     <script>
+    import { browser } from "$app/environment"; 
     import { goto } from '$app/navigation';
 
     let email = '';
@@ -11,7 +12,7 @@
         return;
         }
 
-        const response = await fetch('?/login', {
+        const response = await fetch('/auth', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -19,10 +20,11 @@
         body: new URLSearchParams({
             email,
             password,
+            
         }),
         });
 
-        //console.log(response);
+        console.log(response);
         if (response.ok) {
         // Authentication successful, redirect to dashboard or any other page
         goto('/dashboard'); // Redirect to dashboard page
