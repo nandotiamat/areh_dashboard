@@ -3,8 +3,8 @@ import type { DocumentData } from "firebase-admin/firestore";
 import { collection, getDocs, QuerySnapshot } from "firebase/firestore";
 
 import type { Actions } from "./$types.js";
-import {auth, db} from "$lib/firebase/firebase.js";
-import { adminAuth } from "$lib/server/admin.js";
+import {auth, db} from "$lib/server/firebase_client.js";
+import { adminAuth } from "$lib/server/firebase_admin.js";
 import {redirect} from "@sveltejs/kit";
 
 export async function POST({ request }: { request: Request }) {
@@ -19,17 +19,38 @@ export async function POST({ request }: { request: Request }) {
 
     let user = userCredential.user;
     let userIdToken = await user.getIdToken();
+    console.log
 
     if (!user?.getIdToken) {
         console.info("No idToken found");
         throw redirect(303, "/auth");
     }
 
+    const decodedClaims = await adminAuth.verifyIdToken(userIdToken);
+
+    if (!decodedClaims || !decodedClaims.admin ) {
+        console.log('Unauthorized access: User does not have admin role');
+        // Handle unauthorized access
+        return new Response("Forbidden", { status: 403 });
+    }
+
+
     const expiresIn = 60 * 60 * 24 * 5 * 1000;
 
     const sessionCookie = await adminAuth.createSessionCookie(userIdToken, { expiresIn });
-    // console.log(await userIdToken)
-    // console.log(await sessionCookie)
+    console.log(sessionCookie)
+
+    // try{
+    //     await adminAuth.setCustomUserClaims(user.uid, {admin: true});
+
+    // } catch (error) {
+
+    //     console.error("Error setting custom claims:", error);
+    //     return new Response("Error setting custom claims", {
+    //         status: 500,
+    //     });
+    // }
+
 
     const options = {
         maxAge: expiresIn,

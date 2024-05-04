@@ -4,14 +4,15 @@ import type { DocumentData } from "firebase-admin/firestore";
 import { collection, getDocs, QuerySnapshot } from "firebase/firestore";
 
 import type { Actions } from "./$types.js";
-import {auth, db} from "$lib/firebase/firebase.js";
-import { adminAuth } from "$lib/server/admin.js";
+import {auth, db} from "$lib/server/firebase_client.js";
+import { adminAuth } from "$lib/server/firebase_admin.js";
 import {redirect} from "@sveltejs/kit";
 
 export const  load = async ({ locals }) => {
     if (locals.userSession) {
         throw redirect(303, '/dashboard')
     }
+
 }
 
 

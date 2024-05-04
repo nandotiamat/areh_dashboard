@@ -1,4 +1,5 @@
-import { adminAuth } from "$lib/server/admin.js";
+import {auth} from "$lib/server/firebase_client.js";
+import { adminAuth } from "$lib/server/firebase_admin.js";
 import { redirect, type Handle } from "@sveltejs/kit";
 import type {DecodedIdToken} from "firebase-admin/auth";
 
@@ -14,8 +15,10 @@ export const handle: Handle = async ({ event, resolve }) => {
     } else {
         let decodedClaims: DecodedIdToken | undefined = undefined;
         try {
-            decodedClaims = await adminAuth
-                .verifySessionCookie(session, false);
+            //decodedClaims = await adminAuth.verifyIdToken(session,false);
+            decodedClaims = await adminAuth.verifySessionCookie(session, false);
+            console.log(decodedClaims);
+
         } catch (err) {
             console.error("Error verifying session cookie", err);
             event.locals.userSession = undefined;
@@ -25,8 +28,8 @@ export const handle: Handle = async ({ event, resolve }) => {
             event.locals.userSession = undefined;
         } else {
             //console.info("User session verified");
-            const { uid, email } = decodedClaims;
-            event.locals.userSession = { uid, email };
+            const { uid, email, admin} = decodedClaims;
+            event.locals.userSession = { uid, email, admin};
         }
     }
 

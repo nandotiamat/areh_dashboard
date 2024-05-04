@@ -9,6 +9,7 @@ declare global {
             | {
                 uid: string;
                 email: string | undefined;
+				admin: boolean | undefined;
             }
             | undefined;
 		}

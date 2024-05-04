@@ -1,59 +1,77 @@
-    <script>
+<script>
     import { browser } from "$app/environment"; 
     import { goto } from '$app/navigation';
+    import { error } from "@sveltejs/kit";
 
     let email = '';
     let password = '';
-    let error = false;
+    let errorMessage = '';
+
+    // Function to handle changes in the email input field
+    function handleEmailChange(event) {
+        email = event.target.value; // Update the email variable
+        errorMessage = ''; // Reset the error message
+    }
+
+    // Function to handle changes in the password input field
+    function handlePasswordChange(event) {
+        password = event.target.value; // Update the password variable
+        errorMessage = ''; // Reset the error message
+    }
 
     async function handleAuthenticate() {
-        if (!email || !password) {
-        error = true;
-        return;
-        }
+        try {
+            if (!email || !password) {
+                errorMessage = 'Please fill in all the fields.'
+                return;
+            }
 
-        const response = await fetch('/auth', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-            email,
-            password,
-            
-        }),
-        });
+            const response = await fetch('/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    email,
+                    password,
+                }),
+            });
 
-        console.log(response);
-        if (response.ok) {
-        // Authentication successful, redirect to dashboard or any other page
-        goto('/dashboard'); // Redirect to dashboard page
-        } else {
-        // Authentication failed, display error message
-        error = true;
+            if (response.ok) {
+                // Authentication successful, redirect to dashboard or any other page
+                goto('/dashboard'); // Redirect to dashboard page
+            } else if (response.status === 403) {
+                // Forbidden (user doesn't have admin role)
+                errorMessage = "You do not have permission to log in as you are not an admin.";
+            } else {
+                // Other error status codes
+                errorMessage = "Credentials are incorrect. Please try again.";
+            }
+            password = '';
+        } catch (error) {
+            console.error('Error during login:', error);
+            errorMessage = "An error occurred while logging in. Please try again later.";
         }
     }
-    </script>
+</script>
 
-    <div class='authContainer'>
+<div class='authContainer'>
     <form on:submit|preventDefault={handleAuthenticate} method="POST">
         <h1>Login</h1>
-        {#if error}
-        <p class='error'>Le credenziali inserite non sono corrette</p>
+        {#if errorMessage}
+            <p class='error'>{errorMessage}</p>
         {/if}
         <label>
-        <p class={email ? 'above' : 'center'}>Email</p>
-        <input bind:value={email} type='email' placeholder="Email"/>
+            <p class={email ? 'above' : 'center'}>Email</p>
+            <input bind:value={email} type='email' placeholder="Email" on:input={handleEmailChange}/>
         </label>
         <label>
-        <p class={password ? 'above' : 'center'}>Password</p>
-        <input bind:value={password} type='password' placeholder="Password"/>
+            <p class={password ? 'above' : 'center'}>Password</p>
+            <input bind:value={password} type='password' placeholder="Password" on:input={handlePasswordChange}/>
         </label>
         <button type='submit'>Submit</button>
     </form>
-    </div>
-
-
+</div>
 
 
     <style>
