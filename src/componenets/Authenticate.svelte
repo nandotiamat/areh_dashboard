@@ -20,38 +20,35 @@
     }
 
     async function handleAuthenticate() {
-        try {
-            if (!email || !password) {
-                errorMessage = 'Please fill in all the fields.'
-                return;
-            }
-
-            const response = await fetch('/auth', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    email,
-                    password,
-                }),
-            });
-
-            if (response.ok) {
-                // Authentication successful, redirect to dashboard or any other page
-                goto('/dashboard'); // Redirect to dashboard page
-            } else if (response.status === 403) {
-                // Forbidden (user doesn't have admin role)
-                errorMessage = "You do not have permission to log in as you are not an admin.";
-            } else {
-                // Other error status codes
-                errorMessage = "Credentials are incorrect. Please try again.";
-            }
-            password = '';
-        } catch (error) {
-            console.error('Error during login:', error);
-            errorMessage = "An error occurred while logging in. Please try again later.";
+    
+        if (!email || !password) {
+            errorMessage = 'Please fill in all the fields.'
+            return;
         }
+
+        const response = await fetch('/auth', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                email,
+                password,
+            }),
+        });
+
+        if (response.ok) {
+            // Authentication successful, redirect to dashboard or any other page
+            goto('/dashboard'); // Redirect to dashboard page
+        } else if (response.status === 403) {
+            // Forbidden (user doesn't have admin role)
+            errorMessage = "You do not have permission to login as you are not an admin.";
+        } else {
+            // Other error status codes
+            errorMessage = "Credentials are incorrect. Please try again.";
+        }
+        password = '';
+        
     }
 </script>
 
@@ -76,6 +73,7 @@
 
     <style>
         .authContainer {
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -179,10 +177,6 @@
         .options div p:last-of-type {
             color: cyan;
             cursor: pointer;
-        }
-
-        .loadingSpinner {
-            animation: spin 1s linear infinite;
         }
 
         @keyframes spin {

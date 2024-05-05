@@ -19,7 +19,6 @@ export async function POST({ request }: { request: Request }) {
 
     let user = userCredential.user;
     let userIdToken = await user.getIdToken();
-    console.log
 
     if (!user?.getIdToken) {
         console.info("No idToken found");

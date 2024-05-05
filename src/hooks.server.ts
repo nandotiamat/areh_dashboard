@@ -17,7 +17,6 @@ export const handle: Handle = async ({ event, resolve }) => {
         try {
             //decodedClaims = await adminAuth.verifyIdToken(session,false);
             decodedClaims = await adminAuth.verifySessionCookie(session, false);
-            console.log(decodedClaims);
 
         } catch (err) {
             console.error("Error verifying session cookie", err);

@@ -1,7 +1,7 @@
 import { deleteApp, getApp, getApps, initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { getStorage } from "firebase/storage";
+import { getStorage,ref } from "firebase/storage";
 import {
   FIREBASE_WEB_API_KEY,
   FIREBASE_WEB_AUTH_DOMAIN,
@@ -34,3 +34,4 @@ export const app = firebaseApp;
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+export const storageRef = ref(storage);
