@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import FaArrowLeft from 'svelte-icons/fa/FaArrowLeft.svelte'
-  
+  import { page } from '$app/stores'; // Import the page store
+  import type { Model } from '$lib/types.js'; // Updated import for Model and Section interfaces
+  import FaArrowLeft from 'svelte-icons/fa/FaArrowLeft.svelte';
 
-  export let data: { models: import("$lib/types.js").Model[]; email: string; admin: boolean };
+  export let data: { models: Model[]; email: string; admin: boolean };
 
   const documentID = $page.params.id;
   let models = data.models;
@@ -24,19 +24,18 @@
   }
 
   // Create a separate state for the form data
-  let formData = { ...model };
+  let formData: Partial<Model> = { ...model }; // Use Partial<Model> to allow partial updates
+
   function handleChange(event, key) {
     // Update the form data, not the model
     formData[key] = event.target.value;
   }
+
   async function saveChanges() {
-    // Copy the form data back to the model
-    model = { documentID: model!.documentID, ...formData };
-    // Save your changes here
+    //model = { documentID: documentID, ...formData };
+    console.log(formData);
   }
 </script>
-
-<!-- ... -->
 
 <div class='formContainer'>
   <button on:click={goBack} class='backButton'>
@@ -47,17 +46,30 @@
 
   <form on:submit|preventDefault={saveChanges}>
     <h1>Modifica Modello</h1>
-    {#each ['name', 'libraryName', 'subtitle', 'bottom_text'] as key}
-      <label>
-        <p class={formData[key] ? 'above' : 'center'}>{key}</p>
-        <textarea bind:value={formData[key]} on:input={(event) => handleChange(event, key)} rows="4" />
-      </label>
+    {#each Object.entries(model || {}) as [key, value]}
+      {#if key !== 'documentID' && key !== 'sections'}
+        <label>
+          <p class= 'above'>{key}</p>
+          <textarea bind:value={formData[key]} on:input={(event) => handleChange(event, key)} rows="4" />
+        </label>
+      {/if}
     {/each}
+
+    {#if model && model.sections && model.sections.length > 0}
+      {#each model.sections as section}
+        <h2>{section.name}</h2>
+        {#each section.entries as entry}
+          <label>
+            <p class='above'>{entry.key}</p>
+            <textarea bind:value={formData.sections} on:input={(event) => handleChange(event, entry.key)} rows="4" />
+          </label>
+        {/each}
+      {/each}
+    {/if}
+
     <button type='submit'>Save changes</button>
   </form>
 </div>
-
-<!-- ... -->
 
 <style>
   .formContainer {
@@ -119,8 +131,7 @@
     background: blue;
   }
 
-  .above,
-  .center {
+  .above {
     position: absolute;
     transform: translateY(-50%);
     pointer-events: none;
@@ -128,9 +139,6 @@
     border-radius: 4px;
     padding: 0 6px;
     font-size: 0.8rem;
-  }
-
-  .above {
     top: 0;
     left: 24px;
     background: navy;
@@ -138,22 +146,14 @@
     font-size: 0.7rem;
   }
 
-  .center {
-    top: 50%;
-    left: 6px;
-    border: 1px solid transparent;
-    opacity: 0;
-  }
-
-    .backButton {
-    background: none; 
+  .backButton {
+    background: none;
     border: none;
     color: white;
     font-size: 2rem;
     padding: 10px;
     cursor: pointer;
     align-self: flex-start;
-    
   }
 
   .icon-leftArrow {
@@ -161,3 +161,4 @@
     height: 36px;
   }
 </style>
+

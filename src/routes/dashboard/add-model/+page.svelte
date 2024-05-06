@@ -13,7 +13,7 @@
   }
 
   // Create a separate state for the form data
-    let formData: Model = { documentID: '123', name: '', libraryName: '', subtitle: '', bottom_text: '' };
+    let formData: Model = { documentID: '123', name: '', category: '', subtitle: '', bottom_text: '' };
 
   function handleChange(event, key) {
     // Update the form data
