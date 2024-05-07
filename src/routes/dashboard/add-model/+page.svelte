@@ -1,19 +1,25 @@
 <script lang="ts">
-  import {goto} from '$app/navigation';
-  import FaArrowLeft from 'svelte-icons/fa/FaArrowLeft.svelte'
-  import type { Model } from '$lib/types.js';
+  import { goto } from "$app/navigation";
+  import FaArrowLeft from "svelte-icons/fa/FaArrowLeft.svelte";
+  import type { Model } from "$lib/types.js";
 
   export let data: { models: Model[]; email: string; admin: boolean };
   let models = data.models;
   let email = data.email;
-  let admin = data.admin; 
+  let admin = data.admin;
 
   function goBack() {
-      goto('/dashboard');
+    goto("/dashboard");
   }
 
   // Create a separate state for the form data
-    let formData: Model = { documentID: '123', name: '', category: '', subtitle: '', bottom_text: '' };
+  let formData: Model = {
+    documentID: "123",
+    name: "",
+    category: "",
+    subtitle: "",
+    bottom_text: "",
+  };
 
   function handleChange(event, key) {
     // Update the form data
@@ -26,8 +32,8 @@
   }
 </script>
 
-<div class='formContainer'>
-  <button on:click={goBack} class='backButton'>
+<div class="formContainer">
+  <button on:click={goBack} class="backButton">
     <div class="icon-leftArrow">
       <FaArrowLeft />
     </div>
@@ -35,13 +41,18 @@
 
   <form on:submit|preventDefault={saveChanges}>
     <h1>Nuovo Modello:</h1>
-    {#each ['name', 'libraryName', 'subtitle', 'bottom_text'] as key}
+    {#each ["name", "libraryName", "subtitle", "bottom_text"] as key}
       <label>
-        <p class={formData[key] ? 'above' : 'center'}>{key}</p>
-        <textarea placeholder="...{key}"  bind:value={formData[key]} on:input={(event) => handleChange(event, key)} rows="4" />
+        <p class={formData[key] ? "above" : "center"}>{key}</p>
+        <textarea
+          placeholder="...{key}"
+          bind:value={formData[key]}
+          on:input={(event) => handleChange(event, key)}
+          rows="4"
+        />
       </label>
     {/each}
-    <button type='submit'>Add Model</button>
+    <button type="submit">Add Model</button>
   </form>
 </div>
 
@@ -136,15 +147,14 @@
     opacity: 0;
   }
 
-    .backButton {
-    background: none; 
+  .backButton {
+    background: none;
     border: none;
     color: white;
     font-size: 2rem;
     padding: 10px;
     cursor: pointer;
     align-self: flex-start;
-    
   }
 
   .icon-leftArrow {
