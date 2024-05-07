@@ -5,8 +5,8 @@
   import FaArrowLeft from "svelte-icons/fa/FaArrowLeft.svelte";
   import { reorderKeys } from "../../../componenets/utils/reorderKeys.js";
   import { error } from "@sveltejs/kit";
-  import { fly } from "svelte/transition";
-  import { Trash2, CirclePlus, TicketPlus } from "lucide-svelte";
+  import { fly, fade } from "svelte/transition";
+  import { Trash2, CirclePlus, TicketPlus, RotateCcw } from "lucide-svelte";
 
   export let data: { models: Model[]; email: string; admin: boolean };
 
@@ -203,6 +203,10 @@
     formData = newFormData;
   }
 
+  function restoreFormDataToModel() {
+    formData = { ...model };
+  }
+
   async function saveChanges(event) {
     event?.preventDefault();
     console.log(formData);
@@ -268,7 +272,7 @@
 
     {#if formData && formData.sections && formData.sections.length > 0}
       {#each formData.sections as section, i}
-        <div class="section-header">
+        <div class="section-header" transition:fade>
           <h2>{section.name}</h2>
 
           <button
@@ -287,7 +291,7 @@
           </button>
         </div>
 
-        <label class="section-name-label">
+        <label class="section-name-label" transition:fade>
           <p class="above">
             Nome Sezione (es. Descrizione, Funzionamento, Cause)
           </p>
@@ -331,7 +335,7 @@
                 <div class="preview">
                   <h3>Preview:</h3>
                   <p>
-                    {#if section.entries[j].key !== "" && section.entries[j].value !== ""}
+                    {#if section.entries[j].key !== "" || section.entries[j].value !== ""}
                       <strong>{section.entries[j].key}: </strong>{section
                         .entries[j].value}
                     {:else}
@@ -346,12 +350,25 @@
         <hr />
       {/each}
     {/if}
-    <button type="button" class="addSectionButton" on:click={addNewSection}>
-      <span style="display: flex; align-items: center;">
+    <div style="display: flex; justify-content: space-between;">
+      <button type="button" class="addSectionButton" on:click={addNewSection}>
         Aggiungi Nuova Sezione
-        <span class="add-section-icon"><TicketPlus /></span>
-      </span>
-    </button>
+        <TicketPlus
+          style="width: 24px; height: 24px; color: white; margin-top: 10px"
+        />
+      </button>
+      <button
+        type="button"
+        class="restore-button"
+        on:click={restoreFormDataToModel}
+      >
+        Annulla Modifiche
+        <RotateCcw
+          style="width: 24px; height: 24px; color: white; margin-top: 10px"
+        />
+      </button>
+    </div>
+
     <button type="submit">Save changes</button>
   </form>
 </div>
@@ -382,6 +399,8 @@
     background: transparent;
     color: white;
     padding: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
     resize: none;
   }
 
@@ -392,16 +411,16 @@
 
   form label {
     position: relative;
-    border: 1px solid navy;
+    border: 1px solid rgb(48, 84, 241);
     border-radius: 20px;
   }
 
   form label:focus-within {
-    border-color: blue;
+    border-color: rgb(32, 54, 250);
   }
 
   form button {
-    background: navy;
+    background: rgb(4, 4, 236);
     color: white;
     border: none;
     padding: 14px 0;
@@ -413,7 +432,7 @@
   }
 
   form button:hover {
-    background: blue;
+    background: rgb(10, 73, 247);
   }
 
   .above {
@@ -426,9 +445,9 @@
     font-size: 0.8rem;
     top: 0;
     left: 24px;
-    background: navy;
-    border: 1px solid blue;
-    font-size: 0.8rem;
+    background: rgb(9, 9, 206);
+    border: 1px solid rgb(5, 62, 248);
+    font-size: 16px;
   }
 
   .backButton {
@@ -603,5 +622,24 @@
 
   .delete-section-button:hover {
     background-color: darkred;
+  }
+
+  .restore-button {
+    background-color: gray;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      transform 0.3s;
+  }
+
+  .restore-button:hover {
+    background-color: darkgray;
+  }
+
+  .restore-button:active {
+    transform: scale(0.95);
   }
 </style>

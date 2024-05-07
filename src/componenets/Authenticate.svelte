@@ -1,11 +1,11 @@
 <script>
-  import { browser } from "$app/environment";
   import { goto } from "$app/navigation";
   import { error } from "@sveltejs/kit";
 
   let email = "";
   let password = "";
   let errorMessage = "";
+  let loading = false;
 
   // Function to handle changes in the email input field
   function handleEmailChange(event) {
@@ -25,6 +25,8 @@
       return;
     }
 
+    loading = true; // flag to show loading spinner
+
     const response = await fetch("/auth", {
       method: "POST",
       headers: {
@@ -38,7 +40,8 @@
 
     if (response.ok) {
       // Authentication successful, redirect to dashboard or any other page
-      goto("/dashboard"); // Redirect to dashboard page
+      goto("/dashboard");
+      // Redirect to dashboard page
     } else if (response.status === 403) {
       // Forbidden (user doesn't have admin role)
       errorMessage =
@@ -49,6 +52,7 @@
       errorMessage = "Credentials are incorrect. Please try again.";
       password = "";
     }
+    loading = false; //dispose the spinner
   }
 </script>
 
@@ -76,7 +80,14 @@
         on:input={handlePasswordChange}
       />
     </label>
-    <button type="submit">Submit</button>
+    <button type="submit" class:loading>
+      {#if loading}
+        <!-- Display a spinner when loading is true -->
+        <div class="spinner"></div>
+      {:else}
+        Submit
+      {/if}</button
+    >
   </form>
 </div>
 
@@ -88,23 +99,25 @@
     align-items: center;
     justify-content: center;
     flex: 1;
-    padding: 24px;
+    padding: 34px;
   }
 
   form {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 20px;
   }
 
   form {
-    width: 400px;
+    width: 500px;
     max-width: 100%;
     margin: 0 auto;
   }
 
   form input {
     width: 100%;
+    padding: 48px;
+    font-size: 28px;
   }
 
   h1 {
@@ -114,12 +127,12 @@
 
   form label {
     position: relative;
-    border: 1px solid navy;
+    border: 1px solid rgb(10, 10, 189);
     border-radius: 5px;
   }
 
   form input {
-    border: none;
+    border: solid 1px blue;
     background: transparent;
     color: white;
     padding: 14px;
@@ -135,7 +148,7 @@
   }
 
   form button {
-    background: navy;
+    background: rgb(7, 7, 216);
     color: white;
     border: none;
     padding: 14px 0;
@@ -164,8 +177,8 @@
   .above {
     top: 0;
     left: 24px;
-    background: navy;
-    border: 1px solid blue;
+    background: rgb(14, 14, 231);
+    border: 1px solid rgb(0, 47, 255);
     font-size: 0.7rem;
   }
 
@@ -187,10 +200,17 @@
     cursor: pointer;
   }
 
+  .spinner {
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #09f;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 2s linear infinite;
+  }
+
+  /* Add a simple rotation animation for the spinner */
   @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
     to {
       transform: rotate(360deg);
     }
