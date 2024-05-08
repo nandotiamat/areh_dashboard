@@ -1,0 +1,71 @@
+[33mcommit cf7c922fbc235dfa68ce0b60eab305ab03d2e42d[m[33m ([m[1;36mHEAD -> [m[1;32mcrud[m[33m, [m[1;31morigin/crud[m[33m)[m
+Author: Formola <formola.paolo@gmail.com>
+Date:   Wed May 8 00:20:50 2024 +0200
+
+    fixed ui in modify-model and auth pages
+
+[33mcommit bc38dd2cf41d2f3c07aeb56fb8fd8c2df4acf8dc[m
+Author: Formola <formola.paolo@gmail.com>
+Date:   Tue May 7 20:54:47 2024 +0200
+
+    fixed modify model page and form
+
+[33mcommit 09d2ea9e4c163203f8e8bc66d41fa5e77afeba9a[m[33m ([m[1;31morigin/auth[m[33m, [m[1;32mauth[m[33m)[m
+Author: Formola <formola.paolo@gmail.com>
+Date:   Mon May 6 20:32:23 2024 +0200
+
+    modified Model types
+
+[33mcommit 7d9401de1b9b94ce022654b960159fb1a157cfc6[m
+Author: Formola <formola.paolo@gmail.com>
+Date:   Sun May 5 19:09:28 2024 +0200
+
+    fetched models from firestore
+
+[33mcommit d3eb9d41d0229866fb505d2665b06d38a225c02c[m
+Author: Formola <formola.paolo@gmail.com>
+Date:   Sat May 4 21:08:42 2024 +0200
+
+    added custom claims on jwt auth token
+
+[33mcommit a45ff1bc75dd1128711f386c8e89f0328f3ce31f[m
+Author: Formola <formola.paolo@gmail.com>
+Date:   Fri May 3 20:22:11 2024 +0200
+
+    firebase auth server side
+
+[33mcommit 57a506da1b7a46d4f11bf69541da32e777a1839d[m
+Author: nandotiamat <tambu00matt@gmail.com>
+Date:   Thu May 2 20:00:05 2024 +0200
+
+    fix error private key
+
+[33mcommit 463df48a09af7fd3b0424fd0e9e56f922bb34409[m
+Author: Formola <formola.paolo@gmail.com>
+Date:   Wed May 1 23:07:19 2024 +0200
+
+    add login ui
+
+[33mcommit e2574fa4917a7160200d595d4cef0d82bee9d451[m[33m ([m[1;32mmain[m[33m)[m
+Author: nandotiamat <tambu00matt@gmail.com>
+Date:   Mon Apr 29 13:51:36 2024 +0200
+
+    add firebase client sdk and admin sdk
+
+[33mcommit 039039eacb7380484a72213ae0407919ad5ec922[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: nandotiamat <tambu00matt@gmail.com>
+Date:   Wed Apr 24 20:56:58 2024 +0200
+
+    add .firebase/* to .gitignore
+
+[33mcommit 18d918dbd7ca6517532c5f57bdab90309259cf68[m
+Author: nandotiamat <tambu00matt@gmail.com>
+Date:   Wed Apr 24 20:51:13 2024 +0200
+
+    init firebase hosting
+
+[33mcommit b4a1628ce94903286f52152dbe0fafd584258dd5[m
+Author: nandotiamat <tambu00matt@gmail.com>
+Date:   Wed Apr 24 20:40:09 2024 +0200
+
+    init

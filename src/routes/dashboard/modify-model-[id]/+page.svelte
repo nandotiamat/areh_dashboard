@@ -18,8 +18,48 @@
   const MAX_FILE_SIZE_MB = 30;
   let errorImageMessage = "";
   let errorVideoMessage = "";
+  let errorGLBMessage = "";
+  let errorUSDZMessage = "";
   let showErrorImageMessage = false;
   let showErrorVideoMessage = false;
+  let showErrorGLBMessage = false;
+  let showErrorUSDZMessage = false;
+
+  function setErrorImageMessage(message) {
+    errorImageMessage = message;
+    showErrorImageMessage = true;
+  }
+
+  function setErrorVideoMessage(message) {
+    errorVideoMessage = message;
+    showErrorVideoMessage = true;
+  }
+
+  function setErrorGLBMessage(message) {
+    errorGLBMessage = message;
+    showErrorGLBMessage = true;
+  }
+
+  function setErrorUSDZMessage(message) {
+    errorUSDZMessage = message;
+    showErrorUSDZMessage;
+  }
+
+  function setShowErrorImageMessage(value: boolean) {
+    showErrorImageMessage = value;
+  }
+
+  function setShowErrorVideoMessage(value: boolean) {
+    showErrorVideoMessage = value;
+  }
+
+  function setShowErrorGLBMessage(value: boolean) {
+    showErrorGLBMessage = value;
+  }
+
+  function setShowErrorUSDZMessage(value: boolean) {
+    showErrorUSDZMessage = value;
+  }
 
   let model = models.find((model) => model.documentID === documentID);
 
@@ -31,7 +71,10 @@
     "bottom_text",
     "imageURL",
     "videoURL",
+    "glbURL",
+    "usdzURL",
   ];
+  model = reorderKeys(keyOrder, model);
 
   const customLabels = {
     name: "Nome Modello",
@@ -40,6 +83,15 @@
     bottom_text: "Conclusione/Testo in fondo",
     imageURL: "Immagine (.png)",
     videoURL: "Video (.mp4)",
+    glbURL: "Modello 3D (.glb)",
+    usdzURL: "Modello 3D (.usdz)",
+  };
+
+  const allowedExtensions = {
+    imageURL: ".png",
+    videoURL: ".mp4",
+    glbURL: ".glb",
+    usdzURL: ".usdz",
   };
 
   if (!model) {
@@ -47,8 +99,6 @@
       goto("/dashboard");
     }
   }
-
-  model = reorderKeys(keyOrder, model);
 
   function goBack() {
     goto("/dashboard");
@@ -71,86 +121,100 @@
     formData = newFormData; // Assign the modified newFormData back to formData
   }
 
-  function handleImageFileChange(event, key) {
+  function handleFileChange(
+    event,
+    key,
+    setErrorMessage,
+    setShowError,
+    allowedExtension
+  ) {
     const fileInput = event.target as HTMLInputElement;
     const file = fileInput.files && fileInput.files[0];
 
     if (file) {
-      if (file.type !== "image/png") {
-        window.alert("Tipo di file non valido. Seleziona un'immagine PNG.");
-        errorImageMessage =
-          "Tipo di file non valido. Seleziona un'immagine PNG.";
+      const fileName = file.name;
+      const fileExtension = fileName.slice(fileName.lastIndexOf("."));
+      if (fileExtension !== allowedExtension) {
+        const message = `Invalid file type. Please select a ${allowedExtension.toUpperCase()} file`;
+        window.alert(message);
+        setErrorMessage(message);
+        setShowError(true);
         fileInput.value = "";
-        showErrorImageMessage = true;
         setTimeout(() => {
-          showErrorImageMessage = false;
+          setErrorMessage("");
+          setShowError(false);
         }, 5000);
         return;
       } else {
         formData[key] = file;
-        errorImageMessage = "";
-        showErrorImageMessage = false;
+        setErrorMessage("");
+        setShowError(false);
       }
-
       if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-        window.alert(
-          `Il tuo file supera i ${MAX_FILE_SIZE_MB} MB. Seleziona un file con dimensioni massime di ${MAX_FILE_SIZE_MB} MB.`
-        );
-        errorImageMessage =
-          "Il tuo file supera i 30MB, seleziona un file con dimensioni massime di 30MB.";
+        const message = `File size exceeds ${MAX_FILE_SIZE_MB} MB. Please select a file with a maximum size of ${MAX_FILE_SIZE_MB} MB.`;
+        window.alert(message);
+        setErrorMessage(message);
+        setShowError(true);
         fileInput.value = "";
+        setTimeout(() => {
+          setErrorMessage("");
+          setShowError(false);
+        }, 5000);
         return;
+      } else {
+        formData[key] = file;
+        setErrorMessage("");
+        setShowError(false);
       }
     } else {
-      window.alert("Seleziona un file.");
-      errorImageMessage = "Please select a file.";
-      showErrorImageMessage = true;
+      window.alert("Please select a file.");
+      setErrorMessage("Please select a file.");
+      setShowError(true);
       setTimeout(() => {
-        showErrorImageMessage = false;
+        setErrorMessage("");
+        setShowError(false);
       }, 5000);
     }
   }
 
+  function handleImageFileChange(event, key) {
+    handleFileChange(
+      event,
+      key,
+      setErrorImageMessage,
+      setShowErrorImageMessage,
+      allowedExtensions[key]
+    );
+  }
+
   function handleVideoFileChange(event, key) {
-    const fileInput = event.target as HTMLInputElement;
-    const file = fileInput.files && fileInput.files[0];
+    handleFileChange(
+      event,
+      key,
+      setErrorVideoMessage,
+      setShowErrorVideoMessage,
+      allowedExtensions[key]
+    );
+  }
 
-    if (file) {
-      if (file.type !== "video/mp4") {
-        window.alert("Tipo di file non valido. Seleziona un video MP4.");
-        errorVideoMessage = "Tipo di file non valido. Seleziona un video MP4.";
-        fileInput.value = "";
-        showErrorVideoMessage = true;
-        setTimeout(() => {
-          showErrorVideoMessage = false;
-        }, 5000);
-        return;
-      } else {
-        formData[key] = file;
-        errorVideoMessage = "";
-        showErrorVideoMessage = false;
-      }
+  function handleGLBFileChange(event, key) {
+    handleFileChange(
+      event,
+      key,
+      setErrorGLBMessage,
+      setShowErrorGLBMessage,
+      allowedExtensions[key]
+    );
+  }
 
-      if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-        window.alert(
-          `Il tuo file supera i ${MAX_FILE_SIZE_MB} MB, seleziona un file con dimensioni massime di 30 MB.`
-        );
-        errorVideoMessage = `"Il tuo file supera i ${MAX_FILE_SIZE_MB}MB, seleziona un file con dimensioni massime di 30MB."`;
-        fileInput.value = "";
-        showErrorVideoMessage = true;
-        setTimeout(() => {
-          showErrorVideoMessage = false;
-        }, 5000);
-        return;
-      }
-    } else {
-      window.alert("Please select a file.");
-      errorVideoMessage = "Please select a file.";
-      showErrorVideoMessage = true;
-      setTimeout(() => {
-        showErrorVideoMessage = false;
-      }, 5000);
-    }
+  function handleUSDZFileChange(event, key) {
+    handleFileChange(
+      event,
+      key,
+      setErrorUSDZMessage,
+      setShowErrorUSDZMessage,
+      allowedExtensions[key]
+    );
   }
 
   function handleDeleteEntry(i, j) {
@@ -257,6 +321,36 @@
                 on:change={(event) => handleVideoFileChange(event, key)}
               />
             </div>
+          {:else if key === "glbURL"}
+            {#if showErrorGLBMessage}
+              <p
+                class="error-above-glb"
+                transition:fly={{ y: 0, duration: 2000 }}
+              >
+                {errorGLBMessage}
+              </p>
+            {/if}
+            <div class="custom-file-input">
+              <input
+                type="file"
+                on:change={(event) => handleGLBFileChange(event, key)}
+              />
+            </div>
+          {:else if key === "usdzURL"}
+            {#if showErrorUSDZMessage}
+              <p
+                class="error-above-usdz"
+                transition:fly={{ y: 0, duration: 2000 }}
+              >
+                {errorUSDZMessage}
+              </p>
+            {/if}
+            <div class="custom-file-input">
+              <input
+                type="file"
+                on:change={(event) => handleUSDZFileChange(event, key)}
+              />
+            </div>
           {:else}
             <textarea
               bind:value={formData[key]}
@@ -296,7 +390,7 @@
             Nome Sezione (es. Descrizione, Funzionamento, Cause)
           </p>
           <textarea
-            maxlength="30"
+            maxlength="35"
             bind:value={section.name}
             placeholder="Nome sezione"
             on:input={(event) => handleChangeSectionName(event, i)}
@@ -311,6 +405,7 @@
                 <label>
                   <p class="above">Key</p>
                   <textarea
+                    maxlength="50"
                     placeholder="...key"
                     value={formData.sections[i].entries[j].key}
                     on:input={(event) =>
@@ -324,7 +419,7 @@
                     value={formData.sections[i].entries[j].value}
                     on:input={(event) =>
                       handleChangeSectionEntries(event, i, j, "value")}
-                    rows="4"
+                    rows="8"
                   />
                 </label>
                 <button
@@ -487,7 +582,9 @@
   }
 
   .error-above-img,
-  .error-above-video {
+  .error-above-video,
+  .error-above-glb,
+  .error-above-usdz {
     position: absolute;
     transform: translateY(-60%);
     pointer-events: none;
@@ -498,7 +595,6 @@
     top: 0;
     right: 0;
     background: red;
-    border: 1px solid red;
     opacity: 1;
   }
 
@@ -529,7 +625,6 @@
   }
 
   .preview {
-    margin-top: 10px;
     padding: 10px;
     border-radius: 5px;
     max-width: 100%; /* Limit the maximum width */
@@ -586,13 +681,6 @@
 
   .addSectionButton:hover {
     background-color: darkgreen;
-  }
-
-  .add-section-icon {
-    width: 30px;
-    height: 30px;
-    margin-top: 5px;
-    margin-left: 10px;
   }
   .section-name-label > p.above {
     white-space: nowrap; /* Prevent wrapping */

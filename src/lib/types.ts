@@ -12,5 +12,8 @@ export interface Model {
     bottom_text?: string;
     imageURL?: string;
     videoURL?: string;
+    glbURL?: string;
+    usdzURL?: string;
 
 }
+

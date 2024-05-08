@@ -1,71 +1,85 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
   import type { Model } from "$lib/types.js";
   import FaEdit from "svelte-icons/fa/FaEdit.svelte";
 
   export let data: { models: Model[]; email: string; admin: boolean };
-  let models = data.models;
+  let models: Model[] = [];
   let email = data.email;
   let admin = data.admin;
+  let loading = true;
 
   function goToModifyModel(modelId) {
     goto(`/dashboard/modify-model-${modelId}`);
   }
+
+  onMount(async () => {
+    models = data.models;
+    loading = false;
+  });
 </script>
 
-<div>
-  <div class="card-container">
-    {#if models && models.length > 0}
-      {#each models as model}
-        <div class="card">
-          <div class="card-content description">
-            <h3>{model.name}</h3>
-            <p>
-              <strong style="font-size: 25px;">Category:</strong>
-              {model.category}
-            </p>
-            <p>
-              <strong style="font-size: 25px;">Subtitle:</strong>
-              {model.subtitle}
-            </p>
-            <ul>
-              {#each model.sections || [] as section}
-                <li>
-                  <strong style="font-size: 25px;">{section.name}:</strong>
-                </li>
-                {#each section.entries as entry}
-                  <li>
-                    <strong style="font-size: 17px;">{entry.key}:</strong
-                    >{entry.value}
-                  </li>
-                {/each}
-              {/each}
-            </ul>
-            <p>
-              <strong style="font-size: 25px;">Bottom Text:</strong>
-              {model.bottom_text}
-            </p>
-            <div class="button-container">
-              <button
-                class="button"
-                style="display: flex; align-items: center;"
-                on:click={() => goToModifyModel(model.documentID)}
-              >
-                Modifica
-                <div class="icon-edit">
-                  <FaEdit />
-                </div>
-              </button>
-            </div>
-          </div>
-          <img class="card-image" src={model.imageURL} alt="Model Poster" />
-        </div>
-      {/each}
-    {:else}
-      <p>No models found.</p>
-    {/if}
+{#if loading}
+  <div class="loading-spinner">
+    <!-- Add your loading spinner here -->
+    <p>Loading...</p>
   </div>
-</div>
+{:else}
+  <div>
+    <div class="card-container">
+      {#if models && models.length > 0}
+        {#each models as model}
+          <div class="card">
+            <div class="card-content description">
+              <h3>{model.name}</h3>
+              <p>
+                <strong style="font-size: 25px;">Category:</strong>
+                {model.category}
+              </p>
+              <p>
+                <strong style="font-size: 25px;">Subtitle:</strong>
+                {model.subtitle}
+              </p>
+              <ul>
+                {#each model.sections || [] as section}
+                  <li>
+                    <strong style="font-size: 25px;">{section.name}:</strong>
+                  </li>
+                  {#each section.entries as entry}
+                    <li>
+                      <strong style="font-size: 17px;">{entry.key}:</strong
+                      >{entry.value}
+                    </li>
+                  {/each}
+                {/each}
+              </ul>
+              <p>
+                <strong style="font-size: 25px;">Bottom Text:</strong>
+                {model.bottom_text}
+              </p>
+              <div class="button-container">
+                <button
+                  class="button"
+                  style="display: flex; align-items: center;"
+                  on:click={() => goToModifyModel(model.documentID)}
+                >
+                  Modifica
+                  <div class="icon-edit">
+                    <FaEdit />
+                  </div>
+                </button>
+              </div>
+            </div>
+            <img class="card-image" src={model.imageURL} alt="Model Poster" />
+          </div>
+        {/each}
+      {:else}
+        <p>No models found.</p>
+      {/if}
+    </div>
+  </div>
+{/if}
 
 <style>
   .button-container {
@@ -158,5 +172,13 @@
     width: 24px;
     height: 24px;
     margin-left: 10px;
+  }
+
+  /* Styles for the loading spinner */
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Center vertically */
   }
 </style>
