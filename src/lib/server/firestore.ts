@@ -6,7 +6,7 @@ import { ref, getDownloadURL } from "firebase/storage";
 async function getStorageUrls(docID: string) {
     const modelRef = ref(storage, `models/${docID}`);
     const imageRef = ref(storage, `${modelRef}/poster.png`);
-    const videoRef = ref(storage, `${modelRef}}/video.mp4`);
+    const videoRef = ref(storage, `${modelRef}/video.mp4`);
     const glbRef = ref(storage, `${modelRef}/model.glb`);
     const usdzRef = ref(storage, `${modelRef}/model.usdz`);
 
@@ -45,6 +45,8 @@ export async function getModels() {
         data.videoURL = videoUrl;
         data.glbURL = glbUrl;
         data.usdzURL = usdzUrl;
+
+        console.log(videoUrl);
 
         models.push(data);
     }));

@@ -5,6 +5,7 @@
   let email = "";
   let password = "";
   let errorMessage = "";
+  let loginSuccessful = false;
   let loading = false;
 
   // Function to handle changes in the email input field
@@ -39,9 +40,8 @@
     });
 
     if (response.ok) {
-      // Authentication successful, redirect to dashboard or any other page
+      loginSuccessful = true;
       goto("/dashboard");
-      // Redirect to dashboard page
     } else if (response.status === 403) {
       // Forbidden (user doesn't have admin role)
       errorMessage =
@@ -61,6 +61,8 @@
     <h1>Login</h1>
     {#if errorMessage}
       <p class="error">{errorMessage}</p>
+    {:else if loginSuccessful}
+      <p class="login-successful">Login andato a buon fine</p>
     {/if}
     <label>
       <p class={email ? "above" : "center"}>Email</p>
@@ -191,6 +193,12 @@
 
   .error {
     color: coral;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .login-successful {
+    color: greenyellow;
     font-size: 0.9rem;
     text-align: center;
   }

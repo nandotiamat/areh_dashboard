@@ -6,7 +6,14 @@
   import { reorderKeys } from "../../../componenets/utils/reorderKeys.js";
   import { error } from "@sveltejs/kit";
   import { fly, fade } from "svelte/transition";
-  import { Trash2, CirclePlus, TicketPlus, RotateCcw } from "lucide-svelte";
+  import {
+    Undo2,
+    Trash,
+    Trash2,
+    CirclePlus,
+    TicketPlus,
+    RotateCcw,
+  } from "lucide-svelte";
 
   export let data: { models: Model[]; email: string; admin: boolean };
 
@@ -24,6 +31,8 @@
   let showErrorVideoMessage = false;
   let showErrorGLBMessage = false;
   let showErrorUSDZMessage = false;
+
+  let fileNameInfo = "";
 
   function setErrorImageMessage(message) {
     errorImageMessage = message;
@@ -107,6 +116,8 @@
   // Create a separate state for the form data
   let formData: Partial<Model> = { ...model }; // Use Partial<Model> to allow partial updates
 
+  console.log(formData);
+
   function handleChange(event, key) {
     formData[key] = event.target.value;
   }
@@ -120,6 +131,7 @@
     }
     formData = newFormData; // Assign the modified newFormData back to formData
   }
+  console.log(formData);
 
   function handleFileChange(
     event,
@@ -132,6 +144,7 @@
     const file = fileInput.files && fileInput.files[0];
 
     if (file) {
+      fileNameInfo = file.name;
       const fileName = file.name;
       const fileExtension = fileName.slice(fileName.lastIndexOf("."));
       if (fileExtension !== allowedExtension) {
@@ -144,6 +157,7 @@
           setErrorMessage("");
           setShowError(false);
         }, 5000);
+        formData[key] = model ? model[key] : "";
         return;
       } else {
         formData[key] = file;
@@ -167,7 +181,8 @@
         setShowError(false);
       }
     } else {
-      window.alert("Please select a file.");
+      window.alert("Seleziona un file se vuoi sostituire quello attuale");
+      formData[key] = model ? model[key] : "";
       setErrorMessage("Please select a file.");
       setShowError(true);
       setTimeout(() => {
@@ -223,7 +238,6 @@
       newFormData.sections[i].entries.splice(j, 1);
       formData = newFormData;
     }
-    console.log(formData);
   }
 
   function addNewEntry(i) {
@@ -301,9 +315,50 @@
             <div class="custom-file-input">
               <input
                 type="file"
-                accept="image/png"
                 on:change={(event) => handleImageFileChange(event, key)}
               />
+              {#if model[key] !== ""}
+                {#if formData[key] === model[key] && formData[key] !== ""}
+                  <div style="display: flex; align-items: center;">
+                    <button
+                      type="button"
+                      on:click={(event) => {
+                        event.preventDefault();
+                        formData[key] = "";
+                        fileNameInfo = `attenzione, stai SOLO rimuovendo il ${allowedExtensions[key]} attuale`;
+                        console.log(formData);
+                      }}
+                      class="reset-button"
+                      style="border: none; margin-top: 15px;"
+                    >
+                      <Trash style="color: red; width: 20px; height: 20px;" />
+                    </button>
+                    <p style="margin-top: 20px; margin-left: 15px">
+                      "model.png" è attualmente disponibile online per questo
+                      modello
+                    </p>
+                  </div>
+                {/if}
+              {/if}
+
+              {#if formData[key] === ""}
+                <div class="file-info">
+                  <p style="margin-top: 20px; color: red;">
+                    Nessun file "{allowedExtensions[key]}" è attualmente
+                    disponibile per questo modello
+                  </p>
+                </div>
+              {/if}
+
+              {#if formData[key] !== model[key] && formData[key] !== ""}
+                <div style="display: flex; align-items: center;">
+                  <p
+                    style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
+                  >
+                    Confermando la modifica, caricherai il file "{fileNameInfo}"
+                  </p>
+                </div>
+              {/if}
             </div>
           {:else if key === "videoURL"}
             {#if showErrorVideoMessage}
@@ -317,9 +372,49 @@
             <div class="custom-file-input">
               <input
                 type="file"
-                accept="video/mp4"
                 on:change={(event) => handleVideoFileChange(event, key)}
               />
+              {#if model[key] !== ""}
+                {#if formData[key] === model[key] && formData[key] !== ""}
+                  <div style="display: flex; align-items: center;">
+                    <button
+                      type="button"
+                      on:click={(event) => {
+                        event.preventDefault();
+                        formData[key] = "";
+                        fileNameInfo = `attenzione, stai SOLO rimuovendo il ${allowedExtensions[key]} attuale`;
+                      }}
+                      class="reset-button"
+                      style="border: none; margin-top: 15px;"
+                    >
+                      <Trash style="color: red; width: 20px; height: 20px;" />
+                    </button>
+                    <p style="margin-top: 20px; margin-left: 15px">
+                      "video.mp4" è attualmente disponibile online per questo
+                      modello
+                    </p>
+                  </div>
+                {/if}
+              {/if}
+
+              {#if formData[key] === ""}
+                <div class="file-info">
+                  <p style="margin-top: 20px; color: red;">
+                    Nessun file "{allowedExtensions[key]}" è attualmente
+                    disponibile per questo modello
+                  </p>
+                </div>
+              {/if}
+
+              {#if formData[key] !== model[key] && formData[key] !== ""}
+                <div style="display: flex; align-items: center;">
+                  <p
+                    style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
+                  >
+                    Confermando la modifica, caricherai il file "{fileNameInfo}"
+                  </p>
+                </div>
+              {/if}
             </div>
           {:else if key === "glbURL"}
             {#if showErrorGLBMessage}
@@ -335,6 +430,47 @@
                 type="file"
                 on:change={(event) => handleGLBFileChange(event, key)}
               />
+              {#if model[key] !== ""}
+                {#if formData[key] === model[key] && formData[key] !== ""}
+                  <div style="display: flex; align-items: center;">
+                    <button
+                      type="button"
+                      on:click={(event) => {
+                        event.preventDefault();
+                        formData[key] = "";
+                        fileNameInfo = `attenzione, stai SOLO rimuovendo il ${allowedExtensions[key]} attuale`;
+                      }}
+                      class="reset-button"
+                      style="border: none; margin-top: 15px;"
+                    >
+                      <Trash style="color: red; width: 20px; height: 20px;" />
+                    </button>
+                    <p style="margin-top: 20px; margin-left: 15px">
+                      "model.glb" è attualmente disponibile online per questo
+                      modello
+                    </p>
+                  </div>
+                {/if}
+              {/if}
+
+              {#if formData[key] === ""}
+                <div class="file-info">
+                  <p style="margin-top: 20px; color: red;">
+                    Nessun file "{allowedExtensions[key]}" è attualmente
+                    disponibile per questo modello
+                  </p>
+                </div>
+              {/if}
+
+              {#if formData[key] !== model[key] && formData[key] !== ""}
+                <div style="display: flex; align-items: center;">
+                  <p
+                    style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
+                  >
+                    Confermando la modifica, caricherai il file "{fileNameInfo}"
+                  </p>
+                </div>
+              {/if}
             </div>
           {:else if key === "usdzURL"}
             {#if showErrorUSDZMessage}
@@ -350,6 +486,47 @@
                 type="file"
                 on:change={(event) => handleUSDZFileChange(event, key)}
               />
+              {#if model[key] !== ""}
+                {#if formData[key] === model[key] && formData[key] !== ""}
+                  <div style="display: flex; align-items: center;">
+                    <button
+                      type="button"
+                      on:click={(event) => {
+                        event.preventDefault();
+                        formData[key] = "";
+                        fileNameInfo = `attenzione, stai SOLO rimuovendo il ${allowedExtensions[key]} attuale`;
+                      }}
+                      class="reset-button"
+                      style="border: none; margin-top: 15px;"
+                    >
+                      <Trash style="color: red; width: 20px; height: 20px;" />
+                    </button>
+                    <p style="margin-top: 20px; margin-left: 15px">
+                      "model.usdz" è attualmente disponibile online per questo
+                      modello
+                    </p>
+                  </div>
+                {/if}
+              {/if}
+
+              {#if formData[key] === ""}
+                <div class="file-info">
+                  <p style="margin-top: 20px; color: red;">
+                    Nessun file "{allowedExtensions[key]}" è attualmente
+                    disponibile per questo modello
+                  </p>
+                </div>
+              {/if}
+
+              {#if formData[key] !== model[key] && formData[key] !== ""}
+                <div style="display: flex; align-items: center;">
+                  <p
+                    style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
+                  >
+                    Confermando la modifica, caricherai il file "{fileNameInfo}"
+                  </p>
+                </div>
+              {/if}
             </div>
           {:else}
             <textarea
@@ -391,7 +568,7 @@
           </p>
           <textarea
             maxlength="35"
-            bind:value={section.name}
+            value={section.name}
             placeholder="Nome sezione"
             on:input={(event) => handleChangeSectionName(event, i)}
           />
@@ -566,9 +743,8 @@
     padding: 25px 15px;
     border-radius: 20px;
     color: white;
-    text-align: center;
     line-height: 1.5;
-    width: 100%; /* Set width to 100% to fit the input field */
+    width: 100%;
   }
 
   .custom-file-input:hover {
@@ -712,22 +888,25 @@
     background-color: darkred;
   }
 
-  .restore-button {
-    background-color: gray;
-    padding: 10px;
-    border: none;
+  .restore-button:active {
+    transform: scale(0.95);
+  }
+
+  .reset-button {
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    padding: 8px 16px;
     border-radius: 5px;
     cursor: pointer;
     transition:
       background-color 0.3s,
-      transform 0.3s;
+      color 0.3s;
+    margin-left: 10px;
   }
 
-  .restore-button:hover {
-    background-color: darkgray;
-  }
-
-  .restore-button:active {
-    transform: scale(0.95);
+  .reset-button:hover {
+    background-color: white;
+    color: black;
   }
 </style>

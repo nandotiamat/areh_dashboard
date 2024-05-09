@@ -6,7 +6,14 @@
   import { reorderKeys } from "../../../componenets/utils/reorderKeys.js";
   import { error } from "@sveltejs/kit";
   import { fly, fade } from "svelte/transition";
-  import { Trash2, CirclePlus, TicketPlus, RotateCcw } from "lucide-svelte";
+  import {
+    Undo2,
+    Trash,
+    Trash2,
+    CirclePlus,
+    TicketPlus,
+    RotateCcw,
+  } from "lucide-svelte";
 
   export let data: { models: Model[]; email: string; admin: boolean };
   let models = data.models;
@@ -48,6 +55,8 @@
   let showErrorVideoMessage = false;
   let showErrorGLBMessage = false;
   let showErrorUSDZMessage = false;
+
+  let fileNameInfo = "";
 
   function setErrorImageMessage(message) {
     errorImageMessage = message;
@@ -184,7 +193,19 @@
         setErrorMessage("");
         setShowError(false);
       }, 5000);
+      formData[key] = "";
     }
+  }
+
+  function resetFileInput(key) {
+    console.log(allowedExtensions[key].split(".")[1]);
+    const fileInput = document.getElementById(
+      `${allowedExtensions[key].split(".")[1]}-input`
+    ) as HTMLInputElement | null;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+    formData[key] = "";
   }
 
   function handleImageFileChange(event, key) {
@@ -252,11 +273,26 @@
   function addNewSection() {
     if (formData.sections && formData.sections.length < 10) {
       const newFormData = JSON.parse(JSON.stringify(formData));
+
+      // Find the next available section name
+      let index = 1;
+      let newSectionName = `Sezione ${index}`;
+      while (
+        formData.sections.some((section) => section.name === newSectionName)
+      ) {
+        index++;
+        newSectionName = `Sezione ${index}`;
+      }
+
       const newSection = {
-        name: `Sezione ${formData.sections.length + 1}`,
+        name: newSectionName,
         entries: [],
       };
       newFormData.sections.push(newSection);
+
+      // Sort sections by name
+      newFormData.sections.sort((a, b) => a.name.localeCompare(b.name));
+
       formData = newFormData;
     } else {
       window.alert("Massimo 10 sezioni consentite.");
@@ -284,7 +320,17 @@
       category: "",
       subtitle: "",
       bottom_text: "",
-      sections: [],
+      sections: [
+        {
+          name: "Sezione 1",
+          entries: [
+            {
+              key: "",
+              value: "",
+            },
+          ],
+        },
+      ],
       imageURL: "",
       videoURL: "",
       glbURL: "",
@@ -321,10 +367,25 @@
             {/if}
             <div class="custom-file-input">
               <input
+                id="png-input"
                 type="file"
-                accept="image/png"
                 on:change={(event) => handleImageFileChange(event, key)}
               />
+              {#if formData[key] !== ""}
+                <button
+                  type="button"
+                  on:click={(event) => {
+                    event.preventDefault();
+                    resetFileInput(key);
+                  }}
+                  class="reset-button"
+                  style="border: none; margin-top: 15px;"
+                >
+                  <Trash
+                    style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                  />
+                </button>
+              {/if}
             </div>
           {:else if key === "videoURL"}
             {#if showErrorVideoMessage}
@@ -337,10 +398,25 @@
             {/if}
             <div class="custom-file-input">
               <input
+                id="mp4-input"
                 type="file"
-                accept="video/mp4"
                 on:change={(event) => handleVideoFileChange(event, key)}
               />
+              {#if formData[key] !== ""}
+                <button
+                  type="button"
+                  on:click={(event) => {
+                    event.preventDefault();
+                    resetFileInput(key);
+                  }}
+                  class="reset-button"
+                  style="border: none; margin-top: 15px;"
+                >
+                  <Trash
+                    style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                  />
+                </button>
+              {/if}
             </div>
           {:else if key === "glbURL"}
             {#if showErrorGLBMessage}
@@ -353,9 +429,25 @@
             {/if}
             <div class="custom-file-input">
               <input
+                id="glb-input"
                 type="file"
                 on:change={(event) => handleGLBFileChange(event, key)}
               />
+              {#if formData[key] !== ""}
+                <button
+                  type="button"
+                  on:click={(event) => {
+                    event.preventDefault();
+                    resetFileInput(key);
+                  }}
+                  class="reset-button"
+                  style="border: none; margin-top: 15px;"
+                >
+                  <Trash
+                    style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                  />
+                </button>
+              {/if}
             </div>
           {:else if key === "usdzURL"}
             {#if showErrorUSDZMessage}
@@ -368,9 +460,25 @@
             {/if}
             <div class="custom-file-input">
               <input
+                id="usdz-input"
                 type="file"
                 on:change={(event) => handleUSDZFileChange(event, key)}
               />
+              {#if formData[key] !== ""}
+                <button
+                  type="button"
+                  on:click={(event) => {
+                    event.preventDefault();
+                    resetFileInput(key);
+                  }}
+                  class="reset-button"
+                  style="border: none; margin-top: 15px;"
+                >
+                  <Trash
+                    style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                  />
+                </button>
+              {/if}
             </div>
           {:else}
             <textarea
@@ -584,6 +692,8 @@
   }
 
   .custom-file-input {
+    display: flex;
+    align-items: center;
     overflow: hidden;
     cursor: pointer;
     padding: 25px 15px;
@@ -752,5 +862,23 @@
 
   .restore-button:active {
     transform: scale(0.95);
+  }
+
+  .reset-button {
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+    margin-left: 10px;
+  }
+
+  .reset-button:hover {
+    background-color: white;
+    color: black;
   }
 </style>
