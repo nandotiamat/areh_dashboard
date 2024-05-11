@@ -22,7 +22,6 @@
 
 {#if loading}
   <div class="loading-spinner">
-    <!-- Add your loading spinner here -->
     <p>Loading...</p>
   </div>
 {:else}
@@ -56,7 +55,7 @@
               </ul>
               <p>
                 <strong style="font-size: 25px;">Bottom Text:</strong>
-                {model.bottom_text}
+                {model?.bottom_text}
               </p>
               <div class="button-container">
                 <button

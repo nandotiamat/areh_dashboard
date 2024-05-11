@@ -4,7 +4,7 @@
   import type { Model } from "$lib/types.js"; // Updated import for Model and Section interfaces
   import FaArrowLeft from "svelte-icons/fa/FaArrowLeft.svelte";
   import { reorderKeys } from "../../../componenets/utils/reorderKeys.js";
-  import { error } from "@sveltejs/kit";
+  import { error, redirect } from "@sveltejs/kit";
   import { fly, fade } from "svelte/transition";
   import {
     Undo2,
@@ -32,7 +32,14 @@
   let showErrorGLBMessage = false;
   let showErrorUSDZMessage = false;
 
-  let fileNameInfo = "";
+  let isSubmitting = false;
+
+  let fileNameInfo = {
+    imageURL: "",
+    videoURL: "",
+    glbURL: "",
+    usdzURL: "",
+  };
 
   function setErrorImageMessage(message) {
     errorImageMessage = message;
@@ -116,8 +123,6 @@
   // Create a separate state for the form data
   let formData: Partial<Model> = { ...model }; // Use Partial<Model> to allow partial updates
 
-  console.log(formData);
-
   function handleChange(event, key) {
     formData[key] = event.target.value;
   }
@@ -131,7 +136,6 @@
     }
     formData = newFormData; // Assign the modified newFormData back to formData
   }
-  console.log(formData);
 
   function handleFileChange(
     event,
@@ -144,7 +148,6 @@
     const file = fileInput.files && fileInput.files[0];
 
     if (file) {
-      fileNameInfo = file.name;
       const fileName = file.name;
       const fileExtension = fileName.slice(fileName.lastIndexOf("."));
       if (fileExtension !== allowedExtension) {
@@ -163,6 +166,7 @@
         formData[key] = file;
         setErrorMessage("");
         setShowError(false);
+        fileNameInfo[key] = file.name;
       }
       if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
         const message = `File size exceeds ${MAX_FILE_SIZE_MB} MB. Please select a file with a maximum size of ${MAX_FILE_SIZE_MB} MB.`;
@@ -286,8 +290,51 @@
   }
 
   async function saveChanges(event) {
-    event?.preventDefault();
-    console.log(formData);
+    if (model && model.documentID) {
+      isSubmitting = true;
+      try {
+        const _formData = new FormData();
+
+        Object.entries(formData).forEach(([key, value]) => {
+          if (
+            typeof value === "object" &&
+            value !== null &&
+            !(value instanceof File)
+          ) {
+            _formData.append(key, JSON.stringify(value));
+          } else {
+            _formData.append(key, value);
+          }
+        });
+
+        const response = await fetch(
+          `/dashboard/modify-model-${model?.documentID}`,
+          {
+            method: "POST",
+            body: _formData,
+          }
+        );
+
+        if (response.ok) {
+          const responseData = await response.json();
+          console.log("Form submission successful:", responseData);
+          goto("/dashboard", { replaceState: true, invalidateAll: true });
+        } else {
+          if (response.status === 400) {
+            const errorMessage = await response.text();
+            console.error("Bad request:", errorMessage);
+          } else if (response.status === 500) {
+            console.error("Internal server error");
+          } else {
+            console.error("Unexpected status code:", response.status);
+          }
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        isSubmitting = false;
+      }
+    }
   }
 </script>
 
@@ -325,7 +372,6 @@
                       on:click={(event) => {
                         event.preventDefault();
                         formData[key] = "";
-                        fileNameInfo = `attenzione, stai SOLO rimuovendo il ${allowedExtensions[key]} attuale`;
                         console.log(formData);
                       }}
                       class="reset-button"
@@ -355,7 +401,9 @@
                   <p
                     style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
                   >
-                    Confermando la modifica, caricherai il file "{fileNameInfo}"
+                    Confermando la modifica, caricherai il file "{fileNameInfo[
+                      key
+                    ]}"
                   </p>
                 </div>
               {/if}
@@ -382,7 +430,6 @@
                       on:click={(event) => {
                         event.preventDefault();
                         formData[key] = "";
-                        fileNameInfo = `attenzione, stai SOLO rimuovendo il ${allowedExtensions[key]} attuale`;
                       }}
                       class="reset-button"
                       style="border: none; margin-top: 15px;"
@@ -411,7 +458,9 @@
                   <p
                     style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
                   >
-                    Confermando la modifica, caricherai il file "{fileNameInfo}"
+                    Confermando la modifica, caricherai il file "{fileNameInfo[
+                      key
+                    ]}"
                   </p>
                 </div>
               {/if}
@@ -438,7 +487,6 @@
                       on:click={(event) => {
                         event.preventDefault();
                         formData[key] = "";
-                        fileNameInfo = `attenzione, stai SOLO rimuovendo il ${allowedExtensions[key]} attuale`;
                       }}
                       class="reset-button"
                       style="border: none; margin-top: 15px;"
@@ -467,7 +515,9 @@
                   <p
                     style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
                   >
-                    Confermando la modifica, caricherai il file "{fileNameInfo}"
+                    Confermando la modifica, caricherai il file "{fileNameInfo[
+                      key
+                    ]}"
                   </p>
                 </div>
               {/if}
@@ -494,7 +544,6 @@
                       on:click={(event) => {
                         event.preventDefault();
                         formData[key] = "";
-                        fileNameInfo = `attenzione, stai SOLO rimuovendo il ${allowedExtensions[key]} attuale`;
                       }}
                       class="reset-button"
                       style="border: none; margin-top: 15px;"
@@ -523,7 +572,9 @@
                   <p
                     style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
                   >
-                    Confermando la modifica, caricherai il file "{fileNameInfo}"
+                    Confermando la modifica, caricherai il file "{fileNameInfo[
+                      key
+                    ]}"
                   </p>
                 </div>
               {/if}
@@ -641,7 +692,11 @@
       </button>
     </div>
 
-    <button type="submit">Save changes</button>
+    {#if isSubmitting}
+      <p>Invio richiesta in corso...</p>
+    {:else}
+      <button type="submit" disabled={isSubmitting}>Save changes</button>
+    {/if}
   </form>
 </div>
 

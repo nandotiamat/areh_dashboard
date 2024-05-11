@@ -29,7 +29,6 @@ export async function POST({ request }: { request: Request }) {
 
     if (!decodedClaims || !decodedClaims.admin ) {
         console.log('Unauthorized access: User does not have admin role');
-        // Handle unauthorized access
         return new Response("Forbidden", { status: 403 });
     }
 

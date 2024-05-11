@@ -22,7 +22,7 @@ async function getStorageUrls(docID: string) {
 
 function handleError(error: any) {
     if (error.code === 'storage/object-not-found') {
-        console.error('File not found:', error.message);
+        //console.error('File not found:', error.message);
         return ""; // set url to  "" if file not found
     } else {
         throw error;
@@ -45,8 +45,6 @@ export async function getModels() {
         data.videoURL = videoUrl;
         data.glbURL = glbUrl;
         data.usdzURL = usdzUrl;
-
-        console.log(videoUrl);
 
         models.push(data);
     }));
