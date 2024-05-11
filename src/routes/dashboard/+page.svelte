@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import type { Model } from "$lib/types.js";
   import FaEdit from "svelte-icons/fa/FaEdit.svelte";
+  import { Trash2 } from "lucide-svelte";
 
   export let data: { models: Model[]; email: string; admin: boolean };
   let models: Model[] = [];
@@ -12,6 +13,29 @@
 
   function goToModifyModel(modelId) {
     goto(`/dashboard/modify-model-${modelId}`);
+  }
+
+  async function deleteModel(modelId) {
+    const confirmation = confirm("Are you sure you want to delete this model?");
+    if (confirmation) {
+      try {
+        const response = await fetch(`/dashboard/modify-model-${modelId}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          window.location.reload();
+          alert("Il Modello è stato cancellato correttamente!");
+        } else {
+          // Handle error responses
+          console.error("Error deleting model:", response.statusText);
+          alert("Failed to delete model.");
+        }
+      } catch (error) {
+        console.error("Error deleting model", error);
+        alert("An error occurred while deleting the model.");
+      }
+    }
   }
 
   onMount(async () => {
@@ -31,32 +55,49 @@
         {#each models as model}
           <div class="card">
             <div class="card-content description">
-              <h3>{model.name}</h3>
+              <strong style="font-size: 25px;">Nome Modello:</strong>
+              <h1>
+                {model.name}
+              </h1>
+              <br />
               <p>
-                <strong style="font-size: 25px;">Category:</strong>
+                <strong style="font-size: 25px;">Category:</strong><br />
                 {model.category}
               </p>
+              <br />
               <p>
-                <strong style="font-size: 25px;">Subtitle:</strong>
+                <strong style="font-size: 25px;">Subtitle:</strong><br />
                 {model.subtitle}
               </p>
+              <br />
               <ul>
                 {#each model.sections || [] as section}
-                  <li>
-                    <strong style="font-size: 25px;">{section.name}:</strong>
-                  </li>
-                  {#each section.entries as entry}
+                  {#if section.name}
                     <li>
-                      <strong style="font-size: 17px;">{entry.key}:</strong
-                      >{entry.value}
+                      <strong style="font-size: 25px;">{section.name}:</strong
+                      ><br />
                     </li>
+                  {/if}
+                  {#each section.entries as entry}
+                    {#if entry.key && entry.value}
+                      <li>
+                        <strong style="font-size: 20px;">{entry.key}:</strong
+                        ><br />
+                        {entry.value}
+                      </li>
+                    {/if}
                   {/each}
                 {/each}
               </ul>
+              <br />
               <p>
-                <strong style="font-size: 25px;">Bottom Text:</strong>
+                <strong style="font-size: 25px;">Bottom Text:</strong><br />
                 {model?.bottom_text}
               </p>
+              <br />
+              <br />
+              <br />
+
               <div class="button-container">
                 <button
                   class="button"
@@ -68,9 +109,24 @@
                     <FaEdit />
                   </div>
                 </button>
+
+                <button
+                  class="delete-button"
+                  style="display: flex; align-items: center; margin-left: 10px;"
+                  on:click={() => deleteModel(model.documentID)}
+                >
+                  Delete
+                  <div class="icon-delete">
+                    <Trash2 />
+                  </div>
+                </button>
               </div>
             </div>
-            <img class="card-image" src={model.imageURL} alt="Model Poster" />
+            <img
+              class="card-image"
+              src={model.imageURL}
+              alt="No such .png file found."
+            />
           </div>
         {/each}
       {:else}
@@ -83,7 +139,9 @@
 <style>
   .button-container {
     display: flex;
-    align-items: center;
+    justify-content: flex-start; /* Align to the end of the container */
+    margin-top: auto;
+    margin-bottom: 10px;
   }
 
   .card-container {
@@ -108,10 +166,10 @@
   }
 
   .card-image {
-    width: 20%;
-    height: auto;
+    width: 30%;
+    height: 30%;
     border-radius: 20px 0 0 20px;
-    object-fit: cover;
+    align-self: center;
   }
 
   .card-content {
@@ -121,11 +179,8 @@
     flex-direction: column;
   }
 
-  .card-content h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: black;
-    font-size: 20px; /* Increased font size */
+  p {
+    font-size: 20px;
   }
 
   .description ul {
@@ -136,31 +191,24 @@
   .description li {
     margin-bottom: 5px;
     color: black;
-    font-size: 16px; /* Increased font size */
+    font-size: 20px; /* Increased font size */
   }
 
   .description strong {
     margin-right: 5px;
     color: black;
-    font-size: 18px; /* Increased font size */
-  }
-
-  .button-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: right;
+    font-size: 20px; /* Increased font size */
   }
 
   .button {
     background-color: green;
     color: white;
-    padding: 15px 30px; /* Increased button size */
+    padding: 15px 30px;
     border: none;
-    border-radius: 8px; /* Increased button border radius */
+    border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    font-size: 16px; /* Increased font size */
+    font-size: 16px;
   }
 
   .button:hover {
@@ -172,12 +220,31 @@
     height: 24px;
     margin-left: 10px;
   }
+  .delete-button {
+    background-color: red;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 16px;
+  }
 
-  /* Styles for the loading spinner */
+  .delete-button:hover {
+    background-color: darkred;
+  }
+
+  .icon-delete {
+    width: 24px;
+    height: 24px;
+    margin-left: 10px;
+  }
+
   .loading-spinner {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Center vertically */
+    height: 100vh;
   }
 </style>

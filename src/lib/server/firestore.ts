@@ -41,10 +41,27 @@ export async function getModels() {
 
         const { imageUrl, videoUrl, glbUrl, usdzUrl } = await getStorageUrls(doc.id);
 
-        data.imageURL = imageUrl;
-        data.videoURL = videoUrl;
-        data.glbURL = glbUrl;
-        data.usdzURL = usdzUrl;
+        // Ensure default values for properties if they are undefined
+        data.name = data.name || "";
+        data.category = data.category || "";
+        data.subtitle = data.subtitle || "";
+        data.sections = data.sections || [
+      {
+        name: "",
+        entries: [
+          {
+            key: "",
+            value: "",
+          },
+        ],
+      },
+    ]; // Ensure sections is an empty array if undefined
+        data.bottom_text = data.bottom_text || "";
+
+        data.imageURL = imageUrl || "";
+        data.videoURL = videoUrl || "";
+        data.glbURL = glbUrl || "";
+        data.usdzURL = usdzUrl || "";
 
         models.push(data);
     }));
@@ -53,3 +70,4 @@ export async function getModels() {
 
     return models;
 }
+

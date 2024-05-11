@@ -21,7 +21,8 @@
   let admin = data.admin;
 
   function goBack() {
-    goto("/dashboard");
+    goto("/dashboard", { replaceState: true, invalidateAll: true });
+    // this refresh the /dashboard page models data
   }
   let formData: Model = {
     documentID: "",
@@ -46,7 +47,7 @@
     usdzURL: "",
   };
 
-  const MAX_FILE_SIZE_MB = 30;
+  const MAX_FILE_SIZE_MB = 50;
   let errorImageMessage = "";
   let errorVideoMessage = "";
   let errorGLBMessage = "";
@@ -198,7 +199,6 @@
   }
 
   function resetFileInput(key) {
-    console.log(allowedExtensions[key].split(".")[1]);
     const fileInput = document.getElementById(
       `${allowedExtensions[key].split(".")[1]}-input`
     ) as HTMLInputElement | null;

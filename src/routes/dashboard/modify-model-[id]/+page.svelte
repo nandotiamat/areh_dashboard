@@ -117,7 +117,8 @@
   }
 
   function goBack() {
-    goto("/dashboard");
+    goto("/dashboard", { replaceState: true, invalidateAll: true });
+    // this refresh the /dashboard page models data
   }
 
   // Create a separate state for the form data
@@ -260,11 +261,26 @@
   function addNewSection() {
     if (formData.sections && formData.sections.length < 10) {
       const newFormData = JSON.parse(JSON.stringify(formData));
+
+      // Find the next available section name
+      let index = 1;
+      let newSectionName = `Sezione ${index}`;
+      while (
+        formData.sections.some((section) => section.name === newSectionName)
+      ) {
+        index++;
+        newSectionName = `Sezione ${index}`;
+      }
+
       const newSection = {
-        name: `Sezione ${formData.sections.length + 1}`,
+        name: newSectionName,
         entries: [],
       };
       newFormData.sections.push(newSection);
+
+      // Sort sections by name
+      newFormData.sections.sort((a, b) => a.name.localeCompare(b.name));
+
       formData = newFormData;
     } else {
       window.alert("Massimo 10 sezioni consentite.");
@@ -287,54 +303,87 @@
 
   function restoreFormDataToModel() {
     formData = { ...model };
+    window.scrollTo(0, 0);
+    alert("Modifiche annullate. Ricompila il form da capo");
   }
 
-  async function saveChanges(event) {
+  async function saveChanges() {
     if (model && model.documentID) {
-      isSubmitting = true;
-      try {
-        const _formData = new FormData();
-
-        Object.entries(formData).forEach(([key, value]) => {
-          if (
-            typeof value === "object" &&
-            value !== null &&
-            !(value instanceof File)
-          ) {
-            _formData.append(key, JSON.stringify(value));
-          } else {
-            _formData.append(key, value);
-          }
-        });
-
-        const response = await fetch(
-          `/dashboard/modify-model-${model?.documentID}`,
-          {
-            method: "POST",
-            body: _formData,
-          }
+      if (JSON.stringify(formData) !== JSON.stringify(model)) {
+        const confirmSave = confirm(
+          "Sei sicuro di voler salvare le modifiche?"
         );
+        window.scrollTo(0, 0);
 
-        if (response.ok) {
-          const responseData = await response.json();
-          console.log("Form submission successful:", responseData);
-          goto("/dashboard", { replaceState: true, invalidateAll: true });
-        } else {
-          if (response.status === 400) {
-            const errorMessage = await response.text();
-            console.error("Bad request:", errorMessage);
-          } else if (response.status === 500) {
-            console.error("Internal server error");
-          } else {
-            console.error("Unexpected status code:", response.status);
+        if (confirmSave) {
+          isSubmitting = true;
+          try {
+            const _formData = new FormData();
+
+            Object.entries(formData).forEach(([key, value]) => {
+              if (
+                typeof value === "object" &&
+                value !== null &&
+                !(value instanceof File)
+              ) {
+                _formData.append(key, JSON.stringify(value));
+              } else {
+                _formData.append(key, value);
+              }
+            });
+
+            const response = await fetch(
+              `/dashboard/modify-model-${model?.documentID}`,
+              {
+                method: "POST",
+                body: _formData,
+              }
+            );
+
+            if (response.ok) {
+              const responseData = await response.json();
+              console.log("Form submission successful:", responseData);
+              goto("/dashboard", { replaceState: true, invalidateAll: true });
+              alert("Modello modificato con successo!");
+            } else {
+              if (response.status === 400) {
+                const errorMessage = await response.text();
+                console.error("Bad request:", errorMessage);
+                alert("Error: Bad request. Please try again.");
+              } else if (response.status === 500) {
+                console.error("Internal server error");
+                alert("Internal server error. Please try again later.");
+              } else {
+                console.error("Unexpected status code:", response.status);
+                alert("An unexpected error occurred. Please try again later.");
+              }
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert("An error occurred. Please try again later.");
+          } finally {
+            isSubmitting = false;
           }
         }
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        isSubmitting = false;
+      } else {
+        alert("Nessuna modifica apportata.");
+        window.scrollTo(0, 0);
       }
+    } else {
+      alert("Modello non trovato. Si prega di riprovare.");
+      window.scrollTo(0, 0);
     }
+  }
+
+  function resetFileInput(key) {
+    const fileInput = document.getElementById(
+      `${allowedExtensions[key].split(".")[1]}-input`
+    ) as HTMLInputElement | null;
+    console.log(fileInput);
+    if (fileInput) {
+      fileInput.value = "";
+    }
+    formData[key] = "";
   }
 </script>
 
@@ -361,6 +410,7 @@
             {/if}
             <div class="custom-file-input">
               <input
+                id="png-input"
                 type="file"
                 on:change={(event) => handleImageFileChange(event, key)}
               />
@@ -405,6 +455,19 @@
                       key
                     ]}"
                   </p>
+                  <button
+                    type="button"
+                    on:click={(event) => {
+                      event.preventDefault();
+                      resetFileInput(key);
+                    }}
+                    class="reset-button-side"
+                    style="border: none; margin-top: 15px;"
+                  >
+                    <Trash
+                      style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                    />
+                  </button>
                 </div>
               {/if}
             </div>
@@ -419,6 +482,7 @@
             {/if}
             <div class="custom-file-input">
               <input
+                id="mp4-input"
                 type="file"
                 on:change={(event) => handleVideoFileChange(event, key)}
               />
@@ -462,6 +526,19 @@
                       key
                     ]}"
                   </p>
+                  <button
+                    type="button"
+                    on:click={(event) => {
+                      event.preventDefault();
+                      resetFileInput(key);
+                    }}
+                    class="reset-button-side"
+                    style="border: none; margin-top: 15px;"
+                  >
+                    <Trash
+                      style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                    />
+                  </button>
                 </div>
               {/if}
             </div>
@@ -476,6 +553,7 @@
             {/if}
             <div class="custom-file-input">
               <input
+                id="glb-input"
                 type="file"
                 on:change={(event) => handleGLBFileChange(event, key)}
               />
@@ -519,6 +597,19 @@
                       key
                     ]}"
                   </p>
+                  <button
+                    type="button"
+                    on:click={(event) => {
+                      event.preventDefault();
+                      resetFileInput(key);
+                    }}
+                    class="reset-button-side"
+                    style="border: none; margin-top: 15px;"
+                  >
+                    <Trash
+                      style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                    />
+                  </button>
                 </div>
               {/if}
             </div>
@@ -533,6 +624,7 @@
             {/if}
             <div class="custom-file-input">
               <input
+                id="usdz-input"
                 type="file"
                 on:change={(event) => handleUSDZFileChange(event, key)}
               />
@@ -576,6 +668,19 @@
                       key
                     ]}"
                   </p>
+                  <button
+                    type="button"
+                    on:click={(event) => {
+                      event.preventDefault();
+                      resetFileInput(key);
+                    }}
+                    class="reset-button-side"
+                    style="border: none; margin-top: 15px;"
+                  >
+                    <Trash
+                      style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                    />
+                  </button>
                 </div>
               {/if}
             </div>
@@ -853,6 +958,9 @@
     flex-direction: column;
     padding: 10px;
     margin: 20px;
+    max-height: 1000px; /* Set a high value */
+    overflow: hidden; /* Hide overflowing content */
+    transition: max-height 1s ease; /* Transition max-height */
   }
 
   .preview {
@@ -896,6 +1004,7 @@
     display: flex;
     align-items: center;
     max-width: 100%;
+    transition: opacity 1s ease-in-out;
   }
 
   .addSectionButton {
@@ -920,12 +1029,6 @@
     max-width: calc(
       100% - 48px
     ); /* Adjust max-width to accommodate other elements */
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    max-width: 100%;
   }
 
   .delete-section-button {
@@ -961,6 +1064,24 @@
   }
 
   .reset-button:hover {
+    background-color: white;
+    color: black;
+  }
+
+  .reset-button-side {
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+    margin-left: auto; /* Push the button to the right */
+  }
+
+  .reset-button-side:hover {
     background-color: white;
     color: black;
   }

@@ -1,6 +1,9 @@
-import { db, storage } from "$lib/server/firebase_client.js";
-import {doc, setDoc} from "firebase/firestore";
-import { ref, getDownloadURL, uploadBytesResumable, deleteObject } from "firebase/storage";
+import {invalidate, invalidateAll} from "$app/navigation";
+import { db, storage, storageRef } from "$lib/server/firebase_client.js";
+import {deleteDoc, doc, setDoc} from "firebase/firestore";
+import { ref, getDownloadURL, uploadBytesResumable, deleteObject, listAll } from "firebase/storage";
+import { adminStorage,adminBucket } from "$lib/server/firebase_admin.js";
+
 
 export async function POST({ request }: { request: Request }) {
     try {
@@ -88,7 +91,7 @@ export async function POST({ request }: { request: Request }) {
 
             return new Response(JSON.stringify({ status: 200 }), {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain'
                 }
             });
         } else {
@@ -109,3 +112,58 @@ export async function POST({ request }: { request: Request }) {
         });
     }
 }
+
+
+export async function DELETE({ params }: { params: { id: string } }) {
+    try {
+        const documentID = params.id;
+
+        // Delete model data from Firestore
+        await deleteDoc(doc(db, "models", documentID))
+        await deleteModelFolder(documentID);
+
+        // Delete associated files from Firebase Storage
+        // Get the list of items (files or subfolders) in the storage directory
+        // const listResult = await listAll(storageRef);
+
+        // // Recursively delete each item within the folder
+        // await Promise.all(listResult.items.map(async (itemRef) => {
+        //     await deleteObject(itemRef);
+        // }));
+
+
+
+        return new Response(JSON.stringify({ status: 200 }), {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Error deleting model:', error);
+        return new Response('Internal Server Error', {
+            status: 500,
+            headers: {
+                'Content-Type': 'text/plain'
+            }
+        });
+    }
+}
+
+async function deleteModelFolder(documentID: string) {
+    try{
+        const folderPath = `models/${documentID}`;
+        const bucketName = adminBucket.name;
+    
+        await adminBucket.deleteFiles({
+            prefix: folderPath,
+            force: true,
+        });
+
+                console.log(`Folder ${folderPath} deleted successfully.`);
+
+    } catch(error) {
+        console.error(`Error deleting folder: ${error}`);
+        throw error;
+    }
+}
+

@@ -57,14 +57,16 @@
   {/if}
 
   <div class="button-container">
-    <div>
-      <button class="add-model-btn" on:click={goToAddNewModel}>
-        Aggiungi un Modello
-        <div class="icon-add">
-          <FaPlusCircle />
-        </div>
-      </button>
-    </div>
+    {#if $page.url.pathname !== "/dashboard/add-model"}
+      <div>
+        <button class="add-model-btn" on:click={goToAddNewModel}>
+          Aggiungi un Modello
+          <div class="icon-add">
+            <FaPlusCircle />
+          </div>
+        </button>
+      </div>
+    {/if}
     <button class="logout-btn" on:click={handleLogout}>
       Logout
       <div class="icon-logout">
@@ -73,6 +75,7 @@
     </button>
   </div>
 </div>
+
 <slot />
 
 <style>
