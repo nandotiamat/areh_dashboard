@@ -11,7 +11,6 @@ export async function POST({ request }: { request: Request }) {
         const documentID = formData.get('documentID') as string;
 
         if (formData) {
-            // Extract form data
             const name = formData.get('name') as string;
             const category = formData.get('category') as string;
             const subtitle = formData.get('subtitle') as string;

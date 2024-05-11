@@ -129,13 +129,18 @@
   }
 
   function handleChangeSectionEntries(event, i, j, field) {
-    const newFormData = JSON.parse(JSON.stringify(formData));
-    const section = newFormData.sections?.[i];
-    const entry = section?.entries?.[j];
-    if (section && entry) {
-      entry[field] = event.target.value;
+    if (!formData.sections) {
+      return;
     }
-    formData = newFormData; // Assign the modified newFormData back to formData
+    const newFormData = JSON.parse(JSON.stringify(formData));
+    if (newFormData.sections && newFormData.sections[i]) {
+      const section = newFormData.sections[i];
+      if (section.entries && section.entries[j]) {
+        const entry = section.entries[j];
+        entry[field] = event.target.value;
+        formData.sections[i].entries[j][field] = entry[field]; // Update the corresponding field in formData
+      }
+    }
   }
 
   function handleFileChange(
@@ -241,7 +246,8 @@
     if (formData?.sections?.[i]?.entries) {
       const newFormData = JSON.parse(JSON.stringify(formData));
       newFormData.sections[i].entries.splice(j, 1);
-      formData = newFormData;
+      formData.sections[i].entries = newFormData.sections[i].entries;
+      console.log(formData);
     }
   }
 
@@ -254,7 +260,7 @@
       const newEntry = { key: "", value: "" };
       const newFormData = JSON.parse(JSON.stringify(formData));
       newFormData.sections[i].entries.push(newEntry);
-      formData = newFormData;
+      formData.sections[i].entries = newFormData.sections[i].entries;
     }
   }
 
@@ -278,10 +284,7 @@
       };
       newFormData.sections.push(newSection);
 
-      // Sort sections by name
-      newFormData.sections.sort((a, b) => a.name.localeCompare(b.name));
-
-      formData = newFormData;
+      formData.sections = newFormData.sections;
     } else {
       window.alert("Massimo 10 sezioni consentite.");
     }
@@ -291,14 +294,14 @@
     const newFormData = JSON.parse(JSON.stringify(formData));
     if (newFormData.sections && newFormData.sections[i]) {
       newFormData.sections[i].name = event.target.value;
+      formData.sections = newFormData.sections;
     }
-    formData = newFormData;
   }
 
   function handleDeleteSection(index) {
     const newFormData = JSON.parse(JSON.stringify(formData));
     newFormData.sections.splice(index, 1);
-    formData = newFormData;
+    formData.sections = newFormData.sections;
   }
 
   function restoreFormDataToModel() {
@@ -313,7 +316,6 @@
         const confirmSave = confirm(
           "Sei sicuro di voler salvare le modifiche?"
         );
-        window.scrollTo(0, 0);
 
         if (confirmSave) {
           isSubmitting = true;
@@ -422,7 +424,6 @@
                       on:click={(event) => {
                         event.preventDefault();
                         formData[key] = "";
-                        console.log(formData);
                       }}
                       class="reset-button"
                       style="border: none; margin-top: 15px;"

@@ -46,7 +46,7 @@
 
 {#if loading}
   <div class="loading-spinner">
-    <p>Loading...</p>
+    <p style="color: white">Loading...</p>
   </div>
 {:else}
   <div>

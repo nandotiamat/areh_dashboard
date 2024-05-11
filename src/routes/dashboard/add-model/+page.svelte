@@ -132,13 +132,18 @@
   }
 
   function handleChangeSectionEntries(event, i, j, field) {
-    const newFormData = JSON.parse(JSON.stringify(formData));
-    const section = newFormData.sections?.[i];
-    const entry = section?.entries?.[j];
-    if (section && entry) {
-      entry[field] = event.target.value;
+    if (!formData.sections) {
+      return;
     }
-    formData = newFormData; // Assign the modified newFormData back to formData
+    const newFormData = JSON.parse(JSON.stringify(formData));
+    if (newFormData.sections && newFormData.sections[i]) {
+      const section = newFormData.sections[i];
+      if (section.entries && section.entries[j]) {
+        const entry = section.entries[j];
+        entry[field] = event.target.value;
+        formData.sections[i].entries[j][field] = entry[field]; // Update the corresponding field in formData
+      }
+    }
   }
 
   function handleFileChange(
@@ -164,6 +169,7 @@
           setErrorMessage("");
           setShowError(false);
         }, 5000);
+        formData[key] = "";
         return;
       } else {
         formData[key] = file;
@@ -252,9 +258,9 @@
     if (formData?.sections?.[i]?.entries) {
       const newFormData = JSON.parse(JSON.stringify(formData));
       newFormData.sections[i].entries.splice(j, 1);
-      formData = newFormData;
+      formData.sections[i].entries = newFormData.sections[i].entries;
+      console.log(formData);
     }
-    console.log(formData);
   }
 
   function addNewEntry(i) {
@@ -266,7 +272,7 @@
       const newEntry = { key: "", value: "" };
       const newFormData = JSON.parse(JSON.stringify(formData));
       newFormData.sections[i].entries.push(newEntry);
-      formData = newFormData;
+      formData.sections[i].entries = newFormData.sections[i].entries;
     }
   }
 
@@ -291,9 +297,8 @@
       newFormData.sections.push(newSection);
 
       // Sort sections by name
-      newFormData.sections.sort((a, b) => a.name.localeCompare(b.name));
 
-      formData = newFormData;
+      formData.sections = newFormData.sections;
     } else {
       window.alert("Massimo 10 sezioni consentite.");
     }
@@ -303,14 +308,14 @@
     const newFormData = JSON.parse(JSON.stringify(formData));
     if (newFormData.sections && newFormData.sections[i]) {
       newFormData.sections[i].name = event.target.value;
+      formData.sections = newFormData.sections;
     }
-    formData = newFormData;
   }
 
   function handleDeleteSection(index) {
     const newFormData = JSON.parse(JSON.stringify(formData));
     newFormData.sections.splice(index, 1);
-    formData = newFormData;
+    formData.sections = newFormData.sections;
   }
 
   function restoreFormDataToModel() {
@@ -338,9 +343,76 @@
     };
   }
 
-  async function saveChanges(event) {
-    event?.preventDefault();
+  let isSubmitting = false;
+
+  async function saveChanges() {
     console.log(formData);
+    if (formData) {
+      const confirmSave = confirm(
+        "Sei sicuro di voler creare un modello con questi dati inseriti?"
+      );
+      if (confirmSave) {
+        isSubmitting = true;
+        try {
+          const _formData = new FormData();
+
+          console.log(typeof formData["imageURL"] === "object");
+
+          Object.entries(formData).forEach(([key, value]) => {
+            if (
+              typeof value === "object" &&
+              value !== null &&
+              !(value instanceof File)
+            ) {
+              _formData.append(key, JSON.stringify(value));
+            } else {
+              _formData.append(key, value);
+            }
+          });
+
+          console.log(_formData);
+
+          const response = await fetch("/dashboard/add-model", {
+            method: "POST",
+            body: _formData,
+          });
+
+          if (response.ok) {
+            const responseData = await response.json();
+            console.log("Model added successfully:", responseData);
+            goto("/dashboard", { replaceState: true, invalidateAll: true });
+            alert("Modello creato con successo!");
+          } else {
+            if (response.status === 400) {
+              alert(
+                "Errore nella creazione del modello: Assicurati di aver compilato tutti i campi obbligatori."
+              );
+              goto("/dashboard", { replaceState: true, invalidateAll: true });
+            } else if (response.status === 500) {
+              console.error("Internal server error");
+              alert("Internal server error. Please try again later.");
+              goto("/dashboard", { replaceState: true, invalidateAll: true });
+            } else {
+              console.error("Unexpected status code:", response.status);
+              alert("An unexpected error occurred. Please try again later.");
+              goto("/dashboard", { replaceState: true, invalidateAll: true });
+            }
+          }
+        } catch (error) {
+          console.error("An error occurred:", error);
+          alert("Si è verificato un errore. Riprova più tardi.");
+          goto("/dashboard", { replaceState: true, invalidateAll: true });
+        } finally {
+          isSubmitting = false;
+        }
+      } else {
+        alert("Nessun modello creato, ricompila il form e riprova.");
+        window.scrollTo(0, 0);
+      }
+    } else {
+      alert("Compila il form per creare un modello");
+      window.scrollTo(0, 0);
+    }
   }
 </script>
 
@@ -595,7 +667,11 @@
       </button>
     </div>
 
-    <button type="submit">Save changes</button>
+    {#if isSubmitting}
+      <p>Invio richiesta in corso...</p>
+    {:else}
+      <button type="submit" disabled={isSubmitting}>Save changes</button>
+    {/if}
   </form>
 </div>
 
