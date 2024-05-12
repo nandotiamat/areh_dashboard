@@ -3,7 +3,7 @@
   import { page } from "$app/stores"; // Import the page store
   import type { Model } from "$lib/types.js"; // Updated import for Model and Section interfaces
   import FaArrowLeft from "svelte-icons/fa/FaArrowLeft.svelte";
-  import { reorderKeys } from "../../../componenets/utils/reorderKeys.js";
+  import { reorderKeys } from "$lib/utils/reorderKeys.js";
   import { error, redirect } from "@sveltejs/kit";
   import { fly, fade } from "svelte/transition";
   import {
@@ -14,6 +14,12 @@
     TicketPlus,
     RotateCcw,
   } from "lucide-svelte";
+  import {
+    MAX_FILE_SIZE_MB,
+    allowedExtensions,
+    customLabels,
+    keyOrder,
+  } from "$lib/utils/constants.js";
 
   export let data: { models: Model[]; email: string; admin: boolean };
 
@@ -22,7 +28,6 @@
   let email = data.email;
   let admin = data.admin;
 
-  const MAX_FILE_SIZE_MB = 30;
   let errorImageMessage = "";
   let errorVideoMessage = "";
   let errorGLBMessage = "";
@@ -33,13 +38,6 @@
   let showErrorUSDZMessage = false;
 
   let isSubmitting = false;
-
-  let fileNameInfo = {
-    imageURL: "",
-    videoURL: "",
-    glbURL: "",
-    usdzURL: "",
-  };
 
   function setErrorImageMessage(message) {
     errorImageMessage = message;
@@ -78,37 +76,7 @@
   }
 
   let model = models.find((model) => model.documentID === documentID);
-
-  const keyOrder = [
-    "name",
-    "category",
-    "subtitle",
-    "sections",
-    "bottom_text",
-    "imageURL",
-    "videoURL",
-    "glbURL",
-    "usdzURL",
-  ];
   model = reorderKeys(keyOrder, model);
-
-  const customLabels = {
-    name: "Nome Modello",
-    category: "Categoria",
-    subtitle: "Sottotitolo",
-    bottom_text: "Conclusione/Testo in fondo",
-    imageURL: "Immagine (.png)",
-    videoURL: "Video (.mp4)",
-    glbURL: "Modello 3D (.glb)",
-    usdzURL: "Modello 3D (.usdz)",
-  };
-
-  const allowedExtensions = {
-    imageURL: ".png",
-    videoURL: ".mp4",
-    glbURL: ".glb",
-    usdzURL: ".usdz",
-  };
 
   if (!model) {
     if (typeof window !== "undefined") {
@@ -132,15 +100,25 @@
     if (!formData.sections) {
       return;
     }
-    const newFormData = JSON.parse(JSON.stringify(formData));
-    if (newFormData.sections && newFormData.sections[i]) {
-      const section = newFormData.sections[i];
-      if (section.entries && section.entries[j]) {
-        const entry = section.entries[j];
-        entry[field] = event.target.value;
-        formData.sections[i].entries[j][field] = entry[field]; // Update the corresponding field in formData
+
+    // Update the nested property using spread syntax
+    formData.sections = formData.sections.map((section, index) => {
+      if (index === i && section.entries && section.entries[j]) {
+        return {
+          ...section,
+          entries: section.entries.map((entry, entryIndex) => {
+            if (entryIndex === j) {
+              return {
+                ...entry,
+                [field]: event.target.value,
+              };
+            }
+            return entry;
+          }),
+        };
       }
-    }
+      return section;
+    });
   }
 
   function handleFileChange(
@@ -172,7 +150,6 @@
         formData[key] = file;
         setErrorMessage("");
         setShowError(false);
-        fileNameInfo[key] = file.name;
       }
       if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
         const message = `File size exceeds ${MAX_FILE_SIZE_MB} MB. Please select a file with a maximum size of ${MAX_FILE_SIZE_MB} MB.`;
@@ -334,6 +311,8 @@
               }
             });
 
+            console.log(_formData);
+
             const response = await fetch(
               `/dashboard/modify-model-${model?.documentID}`,
               {
@@ -448,28 +427,19 @@
               {/if}
 
               {#if formData[key] !== model[key] && formData[key] !== ""}
-                <div style="display: flex; align-items: center;">
-                  <p
-                    style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
-                  >
-                    Confermando la modifica, caricherai il file "{fileNameInfo[
-                      key
-                    ]}"
-                  </p>
-                  <button
-                    type="button"
-                    on:click={(event) => {
-                      event.preventDefault();
-                      resetFileInput(key);
-                    }}
-                    class="reset-button-side"
-                    style="border: none; margin-top: 15px;"
-                  >
-                    <Trash
-                      style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
-                    />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  on:click={(event) => {
+                    event.preventDefault();
+                    resetFileInput(key);
+                  }}
+                  class="reset-button-side"
+                  style="border: none; margin-top: 15px;"
+                >
+                  <Trash
+                    style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                  />
+                </button>
               {/if}
             </div>
           {:else if key === "videoURL"}
@@ -520,13 +490,6 @@
 
               {#if formData[key] !== model[key] && formData[key] !== ""}
                 <div style="display: flex; align-items: center;">
-                  <p
-                    style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
-                  >
-                    Confermando la modifica, caricherai il file "{fileNameInfo[
-                      key
-                    ]}"
-                  </p>
                   <button
                     type="button"
                     on:click={(event) => {
@@ -591,13 +554,6 @@
 
               {#if formData[key] !== model[key] && formData[key] !== ""}
                 <div style="display: flex; align-items: center;">
-                  <p
-                    style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
-                  >
-                    Confermando la modifica, caricherai il file "{fileNameInfo[
-                      key
-                    ]}"
-                  </p>
                   <button
                     type="button"
                     on:click={(event) => {
@@ -661,28 +617,19 @@
               {/if}
 
               {#if formData[key] !== model[key] && formData[key] !== ""}
-                <div style="display: flex; align-items: center;">
-                  <p
-                    style="color: lightgreen; margin-top: 20px; transition: color 0.5s;"
-                  >
-                    Confermando la modifica, caricherai il file "{fileNameInfo[
-                      key
-                    ]}"
-                  </p>
-                  <button
-                    type="button"
-                    on:click={(event) => {
-                      event.preventDefault();
-                      resetFileInput(key);
-                    }}
-                    class="reset-button-side"
-                    style="border: none; margin-top: 15px;"
-                  >
-                    <Trash
-                      style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
-                    />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  on:click={(event) => {
+                    event.preventDefault();
+                    resetFileInput(key);
+                  }}
+                  class="reset-button-side"
+                  style="border: none; margin-top: 15px;"
+                >
+                  <Trash
+                    style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                  />
+                </button>
               {/if}
             </div>
           {:else}
@@ -807,283 +754,5 @@
 </div>
 
 <style>
-  .formContainer {
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: top;
-    flex: 1;
-    padding: 10px;
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-    width: 60%;
-    max-width: 100%;
-    margin: 0 auto;
-  }
-
-  form textarea {
-    width: 100%;
-    border: none;
-    background: transparent;
-    color: white;
-    padding: 20px;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 16px;
-    resize: none;
-  }
-
-  form textarea:focus {
-    border: none;
-    outline: none;
-  }
-
-  form label {
-    position: relative;
-    border: 1px solid rgb(48, 84, 241);
-    border-radius: 20px;
-  }
-
-  form label:focus-within {
-    border-color: rgb(32, 54, 250);
-  }
-
-  form button {
-    background: rgb(4, 4, 236);
-    color: white;
-    border: none;
-    padding: 14px 0;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    display: grid;
-    place-items: center;
-  }
-
-  form button:hover {
-    background: rgb(10, 73, 247);
-  }
-
-  .above {
-    position: absolute;
-    transform: translateY(-60%);
-    pointer-events: none;
-    color: white;
-    border-radius: 4px;
-    padding: 0 6px;
-    font-size: 0.8rem;
-    top: 0;
-    left: 24px;
-    background: rgb(9, 9, 206);
-    border: 1px solid rgb(5, 62, 248);
-    font-size: 16px;
-  }
-
-  .backButton {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 2rem;
-    padding: 10px;
-    cursor: pointer;
-    align-self: flex-start;
-  }
-
-  .icon-leftArrow {
-    width: 36px;
-    height: 36px;
-  }
-
-  .custom-file-input {
-    overflow: hidden;
-    cursor: pointer;
-    padding: 25px 15px;
-    border-radius: 20px;
-    color: white;
-    line-height: 1.5;
-    width: 100%;
-  }
-
-  .custom-file-input:hover {
-    background-color: blue;
-  }
-  .custom-file-input input[type="file" i] {
-    width: calc(100% - 30px);
-    position: relative;
-    cursor: pointer;
-    height: 100%;
-  }
-
-  .error-above-img,
-  .error-above-video,
-  .error-above-glb,
-  .error-above-usdz {
-    position: absolute;
-    transform: translateY(-60%);
-    pointer-events: none;
-    color: white;
-    border-radius: 4px;
-    padding: 0 6px;
-    font-size: 0.8rem;
-    top: 0;
-    right: 0;
-    background: red;
-    opacity: 1;
-  }
-
-  .above-delete-button {
-    position: absolute;
-    transform: translateY(-60%);
-    color: white;
-    border-radius: 4px;
-    padding: 0 6px;
-    font-size: 0.8rem;
-    top: 0;
-    right: 20px;
-    background: red;
-    border: 1px solid red;
-    opacity: 1;
-  }
-
-  .above-delete-button:hover {
-    background-color: darkred;
-  }
-
-  .entry-wrapper {
-    display: flex;
-    gap: 40px;
-    flex-direction: column;
-    padding: 10px;
-    margin: 20px;
-    max-height: 1000px; /* Set a high value */
-    overflow: hidden; /* Hide overflowing content */
-    transition: max-height 1s ease; /* Transition max-height */
-  }
-
-  .preview {
-    padding: 10px;
-    border-radius: 5px;
-    max-width: 100%; /* Limit the maximum width */
-    overflow-wrap: break-word; /* Allow long words to be broken and wrap onto the next line */
-  }
-
-  .preview h3 {
-    margin-bottom: 5px;
-    color: white;
-    max-width: 100%; /* Limit the maximum width */
-  }
-
-  .preview strong {
-    max-width: 100%; /* Limit the maximum width */
-  }
-
-  .preview p {
-    max-width: 100%; /* Limit the maximum width */
-  }
-
-  .add-entry-button {
-    background-color: green;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    padding: 8px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    margin-left: 10px;
-    margin-right: 10px;
-  }
-
-  .add-entry-button:hover {
-    background-color: darkgreen;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    max-width: 100%;
-    transition: opacity 1s ease-in-out;
-  }
-
-  .addSectionButton {
-    background-color: green;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin-right: auto;
-    margin-left: 10px; /* Adjust as needed */
-  }
-
-  .addSectionButton:hover {
-    background-color: darkgreen;
-  }
-  .section-name-label > p.above {
-    white-space: nowrap; /* Prevent wrapping */
-    overflow: hidden; /* Hide overflow text */
-    text-overflow: ellipsis; /* Display ellipsis (...) for overflow text */
-    max-width: calc(
-      100% - 48px
-    ); /* Adjust max-width to accommodate other elements */
-  }
-
-  .delete-section-button {
-    background-color: red;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin-left: 20px;
-  }
-
-  .delete-section-button:hover {
-    background-color: darkred;
-  }
-
-  .restore-button:active {
-    transform: scale(0.95);
-  }
-
-  .reset-button {
-    background-color: transparent;
-    color: white;
-    border: 1px solid white;
-    padding: 8px 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition:
-      background-color 0.3s,
-      color 0.3s;
-    margin-left: 10px;
-  }
-
-  .reset-button:hover {
-    background-color: white;
-    color: black;
-  }
-
-  .reset-button-side {
-    background-color: transparent;
-    color: white;
-    border: 1px solid white;
-    padding: 8px 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition:
-      background-color 0.3s,
-      color 0.3s;
-    margin-left: auto; /* Push the button to the right */
-  }
-
-  .reset-button-side:hover {
-    background-color: white;
-    color: black;
-  }
+  @import "/src/styles/form_modifyModel.css";
 </style>

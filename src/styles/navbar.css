@@ -1,0 +1,74 @@
+  /* Navbar Styles */
+  .navbar {
+    background-color: #87ceeb; /* Sky blue color */
+    color: black;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .button-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .add-model-btn {
+    background-color: green;
+    color: white;
+    border: none;
+    padding: 15px 20px; /* Increased button size */
+    border-radius: 8px; /* Increased button border radius */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 40px;
+    /* Add margin between buttons */
+  }
+
+  .logout-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 15px 20px; /* Increased button size */
+    border-radius: 8px; /* Increased button border radius */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 16px; /* Increased font size */
+  }
+
+  .add-model-btn:hover {
+    background-color: darkgreen;
+  }
+
+  .logout-btn:hover {
+    background-color: darkred;
+  }
+
+  .icon-add {
+    width: 24px;
+    height: 24px;
+    margin-left: 50px;
+    margin-top: 10px;
+  }
+
+  .icon-logout {
+    width: 24px;
+    height: 24px;
+    margin-left: 15px;
+    margin-top: 10px;
+  }
+
+  .icon-admin {
+    width: 24px;
+    height: 24px;
+    margin-top: 10px;
+  }
+  .icon-admin {
+    width: 24px;
+    height: 24px;
+    margin-left: 15px;
+    margin-top: 10px;
+  }

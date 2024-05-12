@@ -79,7 +79,7 @@
                     </li>
                   {/if}
                   {#each section.entries as entry}
-                    {#if entry.key && entry.value}
+                    {#if entry.key || entry.value}
                       <li>
                         <strong style="font-size: 20px;">{entry.key}:</strong
                         ><br />
@@ -137,114 +137,5 @@
 {/if}
 
 <style>
-  .button-container {
-    display: flex;
-    justify-content: flex-start; /* Align to the end of the container */
-    margin-top: auto;
-    margin-bottom: 10px;
-  }
-
-  .card-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-  }
-
-  .card {
-    background-color: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: row;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-  }
-
-  .card:hover {
-    transform: translateY(-5px);
-  }
-
-  .card-image {
-    width: 30%;
-    height: 30%;
-    border-radius: 20px 0 0 20px;
-    align-self: center;
-  }
-
-  .card-content {
-    padding: 20px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  p {
-    font-size: 20px;
-  }
-
-  .description ul {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  .description li {
-    margin-bottom: 5px;
-    color: black;
-    font-size: 20px; /* Increased font size */
-  }
-
-  .description strong {
-    margin-right: 5px;
-    color: black;
-    font-size: 20px; /* Increased font size */
-  }
-
-  .button {
-    background-color: green;
-    color: white;
-    padding: 15px 30px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-size: 16px;
-  }
-
-  .button:hover {
-    background-color: darkgreen;
-  }
-
-  .icon-edit {
-    width: 24px;
-    height: 24px;
-    margin-left: 10px;
-  }
-  .delete-button {
-    background-color: red;
-    color: white;
-    padding: 15px 30px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-size: 16px;
-  }
-
-  .delete-button:hover {
-    background-color: darkred;
-  }
-
-  .icon-delete {
-    width: 24px;
-    height: 24px;
-    margin-left: 10px;
-  }
-
-  .loading-spinner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+  @import "/src/styles/dashboard.css";
 </style>

@@ -2,34 +2,7 @@ import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from "firebas
 import { storage, db, storageRef } from "$lib/server/firebase_client.js";
 import { collection, addDoc } from "firebase/firestore"; 
 
-
-export async function POST({ request }: { request: Request }) {
-    try {
-        const formData = await request.formData();
-
-        if (formData) {
-            const name = formData.get('name') as string;
-            const category = formData.get('category') as string;
-            const subtitle = formData.get('subtitle') as string;
-            const bottom_text = formData.get('bottom_text') as string;
-
-            let sections: { name: string; entries: { key: string; value: string }[] }[] = [];
-            const sectionsString = formData.get('sections') as string;
-            if (sectionsString) {
-                sections = JSON.parse(sectionsString);
-            }
-            const docRef = await addDoc(collection(db, 'models'),{
-                name,
-                category,
-                subtitle,
-                bottom_text,
-                sections,
-            });
-
-            const documentID = docRef.id;
-
-            // Function to upload a file if provided and return URL
-            const uploadFileAndGetURL = async (fieldName: string, fileName: string): Promise<string | null> => {
+async function uploadFileAndGetURL(fieldName: string, fileName: string, documentID: string, formData: FormData): Promise<string | null> {
                 const file = formData.get(fieldName) as File;
                 if (file instanceof File) {
                     const storageRef = ref(storage, `models/${documentID}/${fileName}`);
@@ -62,13 +35,31 @@ export async function POST({ request }: { request: Request }) {
                 }
             };
 
-            // Upload the files if provided and save URLs
-            const imageURL = await uploadFileAndGetURL('imageURL', 'poster.png');
-            const videoURL = await uploadFileAndGetURL('videoURL', 'video.mp4');
-            const glbURL = await uploadFileAndGetURL('glbURL', 'model.glb');
-            const usdzURL = await uploadFileAndGetURL('usdzURL', 'model.usdz');
+export async function POST({ request }: { request: Request }) {
+    try {
+        const formData = await request.formData();
 
+        if (formData) {
+            const name = formData.get('name') as string;
+            const category = formData.get('category') as string;
+            const subtitle = formData.get('subtitle') as string;
+            const bottom_text = formData.get('bottom_text') as string;
+
+            let sections: { name: string; entries: { key: string; value: string }[] }[] = [];
+            const sectionsString = formData.get('sections') as string;
+            if (sectionsString) {
+                sections = JSON.parse(sectionsString);
+            }
             
+            const docRef = await saveModelToFirestore(name, category, subtitle, bottom_text, sections);
+            const documentID = docRef.id;
+
+            // Upload the files if provided and save URLs
+            await uploadFileAndGetURL('imageURL', 'poster.png', documentID, formData);
+            await uploadFileAndGetURL('videoURL', 'video.mp4', documentID, formData);
+            await uploadFileAndGetURL('glbURL', 'model.glb', documentID, formData);
+            await uploadFileAndGetURL('usdzURL', 'model.usdz', documentID, formData);
+
             return new Response(JSON.stringify({ status: 200 }), {
                 headers: {
                     'Content-Type': 'text/plain'
@@ -92,3 +83,22 @@ export async function POST({ request }: { request: Request }) {
         });
     }
 };
+
+
+
+async function saveModelToFirestore(name: string, category: string, subtitle: string, bottom_text: string, sections: any[]) {
+    try {
+        const docRef = await addDoc(collection(db, 'models'), {
+            name,
+            category,
+            subtitle,
+            bottom_text,
+            sections,
+        });
+        console.log(`Document written with ID: ${docRef.id}`);
+        return docRef;
+    } catch (error) {
+        console.error('Error adding document:', error);
+        throw error;
+    }
+}

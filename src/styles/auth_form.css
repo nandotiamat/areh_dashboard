@@ -1,0 +1,129 @@
+  .authContainer {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 34px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  form {
+    width: 500px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  form input {
+    width: 100%;
+    padding: 48px;
+    font-size: 28px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 3rem;
+  }
+
+  form label {
+    position: relative;
+    border: 1px solid rgb(10, 10, 189);
+    border-radius: 5px;
+  }
+
+  form input {
+    border: solid 1px blue;
+    background: transparent;
+    color: white;
+    padding: 14px;
+  }
+
+  form input:focus {
+    border: none;
+    outline: none;
+  }
+
+  form label:focus-within {
+    border-color: blue;
+  }
+
+  form button {
+    background: rgb(7, 7, 216);
+    color: white;
+    border: none;
+    padding: 14px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: grid;
+    place-items: center;
+  }
+
+  form button:hover {
+    background: blue;
+  }
+
+  .above,
+  .center {
+    position: absolute;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: white;
+    border-radius: 4px;
+    padding: 0 6px;
+    font-size: 0.8rem;
+  }
+
+  .above {
+    top: 0;
+    left: 24px;
+    background: rgb(14, 14, 231);
+    border: 1px solid rgb(0, 47, 255);
+    font-size: 0.7rem;
+  }
+
+  .center {
+    top: 50%;
+    left: 6px;
+    border: 1px solid transparent;
+    opacity: 0;
+  }
+
+  .error {
+    color: coral;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .login-successful {
+    color: greenyellow;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .options div p:last-of-type {
+    color: cyan;
+    cursor: pointer;
+  }
+
+  .spinner {
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #09f;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 2s linear infinite;
+  }
+
+  /* Add a simple rotation animation for the spinner */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }

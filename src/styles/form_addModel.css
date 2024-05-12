@@ -1,0 +1,281 @@
+.formContainer {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: top;
+    flex: 1;
+    padding: 10px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    width: 60%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  form textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: white;
+    padding: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    resize: none;
+  }
+
+  form textarea:focus {
+    border: none;
+    outline: none;
+  }
+
+  form label {
+    position: relative;
+    border: 1px solid rgb(48, 84, 241);
+    border-radius: 20px;
+  }
+
+  form label:focus-within {
+    border-color: rgb(32, 54, 250);
+  }
+
+  form button {
+    background: rgb(4, 4, 236);
+    color: white;
+    border: none;
+    padding: 14px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: grid;
+    place-items: center;
+  }
+
+  form button:hover {
+    background: rgb(10, 73, 247);
+  }
+
+  .above {
+    position: absolute;
+    transform: translateY(-60%);
+    pointer-events: none;
+    color: white;
+    border-radius: 4px;
+    padding: 0 6px;
+    font-size: 0.8rem;
+    top: 0;
+    left: 24px;
+    background: rgb(9, 9, 206);
+    border: 1px solid rgb(5, 62, 248);
+    font-size: 16px;
+  }
+
+  .backButton {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    padding: 10px;
+    cursor: pointer;
+    align-self: flex-start;
+  }
+
+  .icon-leftArrow {
+    width: 36px;
+    height: 36px;
+  }
+
+  .custom-file-input {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+    padding: 25px 15px;
+    border-radius: 20px;
+    color: white;
+    text-align: center;
+    line-height: 1.5;
+    width: 100%; /* Set width to 100% to fit the input field */
+  }
+
+  .custom-file-input:hover {
+    background-color: blue;
+  }
+  .custom-file-input input[type="file" i] {
+    width: calc(100% - 30px);
+    position: relative;
+    cursor: pointer;
+    height: 100%;
+  }
+
+  .error-above-img,
+  .error-above-video,
+  .error-above-glb,
+  .error-above-usdz {
+    position: absolute;
+    transform: translateY(-60%);
+    pointer-events: none;
+    color: white;
+    border-radius: 4px;
+    padding: 0 6px;
+    font-size: 0.8rem;
+    top: 0;
+    right: 0;
+    background: red;
+    opacity: 1;
+  }
+
+  .above-delete-button {
+    position: absolute;
+    transform: translateY(-60%);
+    color: white;
+    border-radius: 4px;
+    padding: 0 6px;
+    font-size: 0.8rem;
+    top: 0;
+    right: 20px;
+    background: red;
+    border: 1px solid red;
+    opacity: 1;
+  }
+
+  .above-delete-button:hover {
+    background-color: darkred;
+  }
+
+  .entry-wrapper {
+    display: flex;
+    gap: 40px;
+    flex-direction: column;
+    padding: 10px;
+    margin: 20px;
+  }
+
+  .preview {
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 100%; /* Limit the maximum width */
+    overflow-wrap: break-word; /* Allow long words to be broken and wrap onto the next line */
+  }
+
+  .preview h3 {
+    margin-bottom: 5px;
+    color: white;
+    max-width: 100%; /* Limit the maximum width */
+  }
+
+  .preview strong {
+    max-width: 100%; /* Limit the maximum width */
+  }
+
+  .preview p {
+    max-width: 100%; /* Limit the maximum width */
+  }
+
+  .add-entry-button {
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  .add-entry-button:hover {
+    background-color: darkgreen;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+  }
+
+  .addSectionButton {
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-right: auto;
+    margin-left: 10px; /* Adjust as needed */
+  }
+
+  .addSectionButton:hover {
+    background-color: darkgreen;
+  }
+  .section-name-label > p.above {
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Display ellipsis (...) for overflow text */
+    max-width: calc(
+      100% - 48px
+    ); /* Adjust max-width to accommodate other elements */
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+  }
+
+  .delete-section-button {
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-left: 20px;
+  }
+
+  .delete-section-button:hover {
+    background-color: darkred;
+  }
+
+  .restore-button {
+    background-color: gray;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      transform 0.3s;
+  }
+
+  .restore-button:hover {
+    background-color: darkgray;
+  }
+
+  .restore-button:active {
+    transform: scale(0.95);
+  }
+
+  .reset-button {
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+    margin-left: 10px;
+  }
+
+  .reset-button:hover {
+    background-color: white;
+    color: black;
+  }

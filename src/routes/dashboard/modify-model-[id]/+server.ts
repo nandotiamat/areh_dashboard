@@ -5,6 +5,57 @@ import { ref, getDownloadURL, uploadBytesResumable, deleteObject, listAll } from
 import { adminStorage,adminBucket } from "$lib/server/firebase_admin.js";
 
 
+async function uploadFileAndGetURL(fieldName: string, fileName: string, documentID: string, formData: FormData): Promise<string | null> {
+    const file = formData.get(fieldName) as File;
+
+    if (file instanceof File) {
+        const storageRef = ref(storage, `models/${documentID}/${fileName}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        return new Promise<string>((resolve, reject) => {
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log(`Upload of ${fileName} is ${progress}% done`);
+                }, 
+                (error) => {
+                    console.error(`Error uploading ${fileName} file:`, error);
+                    reject(error);
+                }, 
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log(`File available at ${fileName} download URL:`, downloadURL);
+                        resolve(downloadURL);
+                    }).catch((error) => {
+                        console.error(`Error getting ${fileName} download URL:`, error);
+                        reject(error);
+                    });
+                }
+            );
+        });
+    } else {
+        const existingValue = formData.get(fieldName) as string;
+            if (existingValue.trim() !== '') {
+                // If the existing value is non-empty, keep it
+                return existingValue;
+            } else {
+                // If the existing value is empty, no file to delete
+                const storageRef = ref(storage, `models/${documentID}/${fileName}`);
+                try {
+                    await getDownloadURL(storageRef);
+                    // If the getDownloadURL doesn't throw an error, the file exists, so we can delete it
+                    await deleteObject(storageRef);
+                } catch (error) {
+                    // If getDownloadURL throws an error, the file doesn't exist, so we can skip deletion
+                    console.warn(`File '${fieldName}' does not exist.`, error);
+                }
+                return null;
+            }
+
+    }
+}
+
+
 export async function POST({ request }: { request: Request }) {
     try {
         const formData = await request.formData();
@@ -22,70 +73,14 @@ export async function POST({ request }: { request: Request }) {
                 sections = JSON.parse(sectionsString);
             }
 
-            // Function to upload a file if provided and return URL
-            const uploadFileAndGetURL = async (fieldName: string, fileName: string): Promise<string | null> => {
-                const file = formData.get(fieldName) as File;
-                if (file instanceof File) {
-                    const storageRef = ref(storage, `models/${documentID}/${fileName}`);
-                    const uploadTask = uploadBytesResumable(storageRef, file);
-
-                    return new Promise<string>((resolve, reject) => {
-                        uploadTask.on('state_changed', 
-                            (snapshot) => {
-                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                console.log(`Upload of ${fileName} is ${progress}% done`);
-                            }, 
-                            (error) => {
-                                console.error(`Error uploading ${fileName} file:`, error);
-                                reject(error);
-                            }, 
-                            () => {
-                                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                                    console.log(`File available at ${fileName} download URL:`, downloadURL);
-                                    resolve(downloadURL);
-                                }).catch((error) => {
-                                    console.error(`Error getting ${fileName} download URL:`, error);
-                                    reject(error);
-                                });
-                            }
-                        );
-                    });
-                } else {
-                    const existingValue = formData.get(fieldName) as string;
-                        if (existingValue.trim() !== '') {
-                            // If the existing value is non-empty, keep it
-                            return existingValue;
-                        } else {
-                            // If the existing value is empty, no file to delete
-                            const storageRef = ref(storage, `models/${documentID}/${fileName}`);
-                            try {
-                                await getDownloadURL(storageRef);
-                                // If the getDownloadURL doesn't throw an error, the file exists, so we can delete it
-                                await deleteObject(storageRef);
-                            } catch (error) {
-                                // If getDownloadURL throws an error, the file doesn't exist, so we can skip deletion
-                                console.warn(`File '${fieldName}' does not exist.`, error);
-                            }
-                            return null;
-                        }
-
-                }
-            };
-
             // Upload the files if provided and save URLs
-            const imageURL = await uploadFileAndGetURL('imageURL', 'poster.png');
-            const videoURL = await uploadFileAndGetURL('videoURL', 'video.mp4');
-            const glbURL = await uploadFileAndGetURL('glbURL', 'model.glb');
-            const usdzURL = await uploadFileAndGetURL('usdzURL', 'model.usdz');
+            await uploadFileAndGetURL('imageURL', 'poster.png', documentID, formData);
+            await uploadFileAndGetURL('videoURL', 'video.mp4', documentID, formData);
+            await uploadFileAndGetURL('glbURL', 'model.glb', documentID, formData);
+            await uploadFileAndGetURL('usdzURL', 'model.usdz',  documentID, formData);
 
-            const docRef = doc(db, "models", documentID);
-            await setDoc(docRef, {
-                name,
-                category,
-                subtitle,
-                bottom_text,
-                sections
-            });
+            await saveModelToFirestore(documentID, name, category, subtitle, bottom_text, sections);
+
 
 
             return new Response(JSON.stringify({ status: 200 }), {
@@ -112,25 +107,14 @@ export async function POST({ request }: { request: Request }) {
     }
 }
 
-
+// DELETE function
 export async function DELETE({ params }: { params: { id: string } }) {
     try {
         const documentID = params.id;
 
         // Delete model data from Firestore
-        await deleteDoc(doc(db, "models", documentID))
+        await deleteDoc(doc(db, "models", documentID));
         await deleteModelFolder(documentID);
-
-        // Delete associated files from Firebase Storage
-        // Get the list of items (files or subfolders) in the storage directory
-        // const listResult = await listAll(storageRef);
-
-        // // Recursively delete each item within the folder
-        // await Promise.all(listResult.items.map(async (itemRef) => {
-        //     await deleteObject(itemRef);
-        // }));
-
-
 
         return new Response(JSON.stringify({ status: 200 }), {
             headers: {
@@ -148,21 +132,33 @@ export async function DELETE({ params }: { params: { id: string } }) {
     }
 }
 
+// Function to delete model folder from Firebase Storage
 async function deleteModelFolder(documentID: string) {
-    try{
+    try {
         const folderPath = `models/${documentID}`;
         const bucketName = adminBucket.name;
-    
+
         await adminBucket.deleteFiles({
             prefix: folderPath,
             force: true,
         });
 
-                console.log(`Folder ${folderPath} deleted successfully.`);
-
+        console.log(`Folder ${folderPath} deleted successfully.`);
     } catch(error) {
         console.error(`Error deleting folder: ${error}`);
         throw error;
     }
 }
 
+
+// Function to save model data to Firestore
+async function saveModelToFirestore(documentID, name, category, subtitle, bottom_text, sections) {
+    const docRef = doc(db, "models", documentID);
+    await setDoc(docRef, {
+        name,
+        category,
+        subtitle,
+        bottom_text,
+        sections
+    });
+}
