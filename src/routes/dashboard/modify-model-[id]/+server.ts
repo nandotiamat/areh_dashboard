@@ -1,8 +1,8 @@
-import {invalidate, invalidateAll} from "$app/navigation";
-import { db, storage, storageRef } from "$lib/server/firebase_client.js";
-import {deleteDoc, doc, setDoc} from "firebase/firestore";
+import { db, storage } from "$lib/server/firebase_client.js";
+import {deleteDoc, doc} from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytesResumable, deleteObject, listAll } from "firebase/storage";
-import { adminStorage,adminBucket } from "$lib/server/firebase_admin.js";
+import { adminBucket } from "$lib/server/firebase_admin.js";
+import {modifyModelOnFirestore} from "$lib/server/firestore.js";
 
 
 async function uploadFileAndGetURL(fieldName: string, fileName: string, documentID: string, formData: FormData): Promise<string | null> {
@@ -79,7 +79,7 @@ export async function POST({ request }: { request: Request }) {
             await uploadFileAndGetURL('glbURL', 'model.glb', documentID, formData);
             await uploadFileAndGetURL('usdzURL', 'model.usdz',  documentID, formData);
 
-            await saveModelToFirestore(documentID, name, category, subtitle, bottom_text, sections);
+            await modifyModelOnFirestore(documentID, name, category, subtitle, bottom_text, sections);
 
 
 
@@ -106,6 +106,7 @@ export async function POST({ request }: { request: Request }) {
         });
     }
 }
+//TODO: add delete qr folder if it is separated from the other model's files
 
 // DELETE function
 export async function DELETE({ params }: { params: { id: string } }) {
@@ -148,17 +149,4 @@ async function deleteModelFolder(documentID: string) {
         console.error(`Error deleting folder: ${error}`);
         throw error;
     }
-}
-
-
-// Function to save model data to Firestore
-async function saveModelToFirestore(documentID, name, category, subtitle, bottom_text, sections) {
-    const docRef = doc(db, "models", documentID);
-    await setDoc(docRef, {
-        name,
-        category,
-        subtitle,
-        bottom_text,
-        sections
-    });
 }

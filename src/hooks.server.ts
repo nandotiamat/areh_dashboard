@@ -1,11 +1,8 @@
-import {auth} from "$lib/server/firebase_client.js";
 import { adminAuth } from "$lib/server/firebase_admin.js";
 import { redirect, type Handle } from "@sveltejs/kit";
 import type {DecodedIdToken} from "firebase-admin/auth";
 
 export const handle: Handle = async ({ event, resolve }) => {
-
-    const now = performance.now();
 
     const session = event.cookies.get("session") ?? "";
 
@@ -42,8 +39,6 @@ export const handle: Handle = async ({ event, resolve }) => {
             throw redirect(303, '/auth');
         }
     }
-
-    //console.debug(`Request took ${performance.now() - now}ms`);
 
     const result = await resolve(event, {
         transformPageChunk: ({ html }) => html,

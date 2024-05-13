@@ -3,7 +3,7 @@
   import { onMount } from "svelte";
   import type { Model } from "$lib/types.js";
   import FaEdit from "svelte-icons/fa/FaEdit.svelte";
-  import { Trash2 } from "lucide-svelte";
+  import { Trash2, Download } from "lucide-svelte";
 
   export let data: { models: Model[]; email: string; admin: boolean };
   let models: Model[] = [];
@@ -35,6 +35,33 @@
         console.error("Error deleting model", error);
         alert("An error occurred while deleting the model.");
       }
+    }
+  }
+
+  async function downloadQr(modelId: string) {
+    try {
+      const model = models.find((model) => model.documentID === modelId);
+
+      if (!model || !model.qrCodeURL) {
+        alert("QR code not found.");
+        return;
+      }
+
+      const response = await fetch(model.qrCodeURL);
+      if (!response.ok) {
+        console.error("Error downloading QR code:", response.statusText);
+        alert("Failed to download QR code.");
+        return;
+      }
+
+      const qrCodeBlob = await response.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(qrCodeBlob);
+      link.download = `${model.name}.png`;
+      link.click();
+    } catch (error) {
+      console.error("Error downloading QR code", error);
+      alert("An error occurred while downloading the QR code.");
     }
   }
 
@@ -118,6 +145,17 @@
                   Delete
                   <div class="icon-delete">
                     <Trash2 />
+                  </div>
+                </button>
+
+                <button
+                  class="qr-button"
+                  style="display: flex; align-items: center; margin-left: 10px;"
+                  on:click={() => downloadQr(model.documentID)}
+                >
+                  Download QR
+                  <div class="icon-download">
+                    <Download />
                   </div>
                 </button>
               </div>

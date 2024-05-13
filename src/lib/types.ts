@@ -14,6 +14,7 @@ export interface Model {
     videoURL?: string;
     glbURL?: string;
     usdzURL?: string;
+    qrCodeURL?: string;
 
 }
 

@@ -1,39 +1,40 @@
-import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { storage, db, storageRef } from "$lib/server/firebase_client.js";
-import { collection, addDoc } from "firebase/firestore"; 
+import {  getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "$lib/server/firebase_client.js";
+import { generateQRCode, uploadQRCodeToStorage } from "$lib/server/qr_code.js";
+import {saveModelToFirestore} from "$lib/server/firestore.js";
 
 async function uploadFileAndGetURL(fieldName: string, fileName: string, documentID: string, formData: FormData): Promise<string | null> {
-                const file = formData.get(fieldName) as File;
-                if (file instanceof File) {
-                    const storageRef = ref(storage, `models/${documentID}/${fileName}`);
-                    const uploadTask = uploadBytesResumable(storageRef, file);
+    const file = formData.get(fieldName) as File;
+    if (file instanceof File) {
+        const storageRef = ref(storage, `models/${documentID}/${fileName}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
 
-                    return new Promise<string>((resolve, reject) => {
-                        uploadTask.on('state_changed',
-                            (snapshot) => {
-                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                console.log(`Upload of ${fileName} is ${progress}% done`);
-                            },
-                            (error) => {
-                                console.error(`Error uploading ${fileName} file:`, error);
-                                reject(error);
-                            },
-                            () => {
-                                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                                    console.log(`File available at ${fileName} download URL:`, downloadURL);
-                                    resolve(downloadURL);
-                                }).catch((error) => {
-                                    console.error(`Error getting ${fileName} download URL:`, error);
-                                    reject(error);
-                                });
-                            }
-                        );
+        return new Promise<string>((resolve, reject) => {
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log(`Upload of ${fileName} is ${progress}% done`);
+                },
+                (error) => {
+                    console.error(`Error uploading ${fileName} file:`, error);
+                    reject(error);
+                },
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log(`File available at ${fileName} download URL:`, downloadURL);
+                        resolve(downloadURL);
+                    }).catch((error) => {
+                        console.error(`Error getting ${fileName} download URL:`, error);
+                        reject(error);
                     });
-                } else {
-                    console.warn(`You must provide a file for the upload`);
-                    return null;
                 }
-            };
+            );
+        });
+    } else {
+        console.warn(`You must provide a file for the upload`);
+        return null;
+    }
+};
 
 export async function POST({ request }: { request: Request }) {
     try {
@@ -60,6 +61,9 @@ export async function POST({ request }: { request: Request }) {
             await uploadFileAndGetURL('glbURL', 'model.glb', documentID, formData);
             await uploadFileAndGetURL('usdzURL', 'model.usdz', documentID, formData);
 
+            const qrCodeImage = await generateQRCode(documentID);
+            await uploadQRCodeToStorage(qrCodeImage, documentID);
+
             return new Response(JSON.stringify({ status: 200 }), {
                 headers: {
                     'Content-Type': 'text/plain'
@@ -85,20 +89,3 @@ export async function POST({ request }: { request: Request }) {
 };
 
 
-
-async function saveModelToFirestore(name: string, category: string, subtitle: string, bottom_text: string, sections: any[]) {
-    try {
-        const docRef = await addDoc(collection(db, 'models'), {
-            name,
-            category,
-            subtitle,
-            bottom_text,
-            sections,
-        });
-        console.log(`Document written with ID: ${docRef.id}`);
-        return docRef;
-    } catch (error) {
-        console.error('Error adding document:', error);
-        throw error;
-    }
-}
