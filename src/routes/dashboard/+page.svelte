@@ -43,7 +43,7 @@
       const model = models.find((model) => model.documentID === modelId);
 
       if (!model || !model.qrCodeURL) {
-        alert("QR code not found.");
+        alert("QR code non trovato per questo modello");
         return;
       }
 
@@ -114,6 +114,7 @@
                       </li>
                     {/if}
                   {/each}
+                  <br />
                 {/each}
               </ul>
               <br />

@@ -9,7 +9,7 @@ async function getStorageUrls(docID: string) {
     const videoRef = ref(storage, `${modelRef}/video.mp4`);
     const glbRef = ref(storage, `${modelRef}/model.glb`);
     const usdzRef = ref(storage, `${modelRef}/model.usdz`);
-    const qrCodeRef = ref(storage, `qr/models/model_${docID}.png`);
+    const qrCodeRef = ref(storage, `${modelRef}/qr.png`);
 
     const [imageUrl, videoUrl, glbUrl, usdzUrl, qrCodeUrl] = await Promise.all([
         getDownloadURL(imageRef).catch(handleError),

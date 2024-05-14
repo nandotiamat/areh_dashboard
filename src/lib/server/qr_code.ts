@@ -29,7 +29,7 @@ export async function generateQRCode(documentID: string) {
 
 export async function uploadQRCodeToStorage(qrCodeImage,documentID){
     try {
-        const storageRef = ref(storage, `qr/models/model_${documentID}.png`);
+        const storageRef = ref(storage, `/models/${documentID}/qr.png`);
         const uploadTask = uploadBytesResumable(storageRef, qrCodeImage);
 
         return new Promise<void>((resolve, reject) => {

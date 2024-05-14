@@ -40,8 +40,8 @@
     });
 
     if (response.ok) {
-      loginSuccessful = true;
       goto("/dashboard");
+      loginSuccessful = true;
     } else if (response.status === 403) {
       // Forbidden (user doesn't have admin role)
       errorMessage =

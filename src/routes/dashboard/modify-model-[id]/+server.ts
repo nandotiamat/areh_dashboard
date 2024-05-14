@@ -137,7 +137,6 @@ export async function DELETE({ params }: { params: { id: string } }) {
 async function deleteModelFolder(documentID: string) {
     try {
         const folderPath = `models/${documentID}`;
-        const bucketName = adminBucket.name;
 
         await adminBucket.deleteFiles({
             prefix: folderPath,
