@@ -1,5 +1,5 @@
 import { db, storage } from "$lib/server/firebase_client.js";
-import {deleteDoc, doc} from "firebase/firestore";
+import {arrayRemove, collection, deleteDoc, doc, getDocs, query, updateDoc, where} from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytesResumable, deleteObject, listAll } from "firebase/storage";
 import { adminBucket } from "$lib/server/firebase_admin.js";
 import {modifyModelOnFirestore} from "$lib/server/firestore.js";
@@ -106,16 +106,15 @@ export async function POST({ request }: { request: Request }) {
         });
     }
 }
-//TODO: add delete qr folder if it is separated from the other model's files
 
 // DELETE function
-export async function DELETE({ params }: { params: { id: string } }) {
+export async function DELETE({ params }) {
     try {
         const documentID = params.id;
 
-        // Delete model data from Firestore
         await deleteDoc(doc(db, "models", documentID));
         await deleteModelFolder(documentID);
+        await removeModelReferenceFromUsers(documentID);
 
         return new Response(JSON.stringify({ status: 200 }), {
             headers: {
@@ -146,6 +145,23 @@ async function deleteModelFolder(documentID: string) {
         console.log(`Folder ${folderPath} deleted successfully.`);
     } catch(error) {
         console.error(`Error deleting folder: ${error}`);
+        throw error;
+    }
+}
+
+async function removeModelReferenceFromUsers(documentID) {
+    try {
+        const userQuery = query(collection(db, 'users'), where('models', 'array-contains', doc(db, 'models', documentID)));
+        const querySnapshot = await getDocs(userQuery);
+
+        querySnapshot.forEach(async (userDoc) => {
+            await updateDoc(userDoc.ref, {
+                models: arrayRemove(doc(db, 'models', documentID))
+            });
+        });
+        console.log(`Model reference removed from users successfully.`);
+    } catch (error) {
+        console.error('Error removing model reference from users:', error);
         throw error;
     }
 }
