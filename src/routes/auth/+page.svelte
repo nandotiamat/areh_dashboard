@@ -70,6 +70,7 @@
         type="email"
         placeholder="Email"
         on:input={handleEmailChange}
+        required
       />
     </label>
     <label>
@@ -79,6 +80,7 @@
         type="password"
         placeholder="Password"
         on:input={handlePasswordChange}
+        required
       />
     </label>
     <button type="submit" class:loading>

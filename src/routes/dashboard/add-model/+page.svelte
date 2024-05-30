@@ -448,6 +448,7 @@
               <input
                 id="png-input"
                 type="file"
+                required
                 on:change={(event) => handleImageFileChange(event, key)}
               />
               {#if formData[key] !== ""}
@@ -565,6 +566,7 @@
               bind:value={formData[key]}
               on:input={(event) => handleChange(event, key)}
               rows="4"
+              required={key === "name" || key === "category" ? true : false}
             />
           {/if}
         </label>

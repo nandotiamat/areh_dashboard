@@ -393,6 +393,7 @@
               <input
                 id="png-input"
                 type="file"
+                required
                 on:change={(event) => handleImageFileChange(event, key)}
               />
               {#if model[key] !== ""}
@@ -637,6 +638,8 @@
               bind:value={formData[key]}
               on:input={(event) => handleChange(event, key)}
               rows="4"
+              required={key === "name" || key === "category" ? true : false}
+              placeholder={`...Inserisci ${customLabels[key] || key}`}
             />
           {/if}
         </label>
