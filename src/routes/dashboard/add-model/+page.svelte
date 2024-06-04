@@ -578,14 +578,14 @@
     {#if formData && formData.sections && formData.sections.length > 0}
       {#each formData.sections as section, i}
         <div class="section-header" transition:fade>
-          <h2>{section.name}</h2>
+          <h2 style="color: black;">{section.name}</h2>
 
           <button
             type="button"
             class="add-entry-button"
             on:click={() => addNewEntry(i)}><CirclePlus /></button
           >
-          <h4>[...{section.entries.length} elementi]</h4>
+          <h4 style="color: black">[...{section.entries.length} elementi]</h4>
 
           <button
             type="button"
@@ -639,8 +639,8 @@
                   on:click={() => handleDeleteEntry(i, j)}><Trash2 /></button
                 >
                 <div class="preview">
-                  <h3>Preview:</h3>
-                  <p>
+                  <h3 style="color: black">Preview:</h3>
+                  <p style="color: black;">
                     {#if section.entries[j].key !== "" || section.entries[j].value !== ""}
                       <strong>{section.entries[j].key}: </strong>{section
                         .entries[j].value}

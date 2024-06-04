@@ -1,6 +1,6 @@
   /* Navbar Styles */
   .navbar {
-    background-color: #87ceeb; /* Sky blue color */
+    background-color: rgba(255,255,255,0.7); 
     color: black;
     padding: 20px;
     display: flex;

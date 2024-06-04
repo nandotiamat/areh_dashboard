@@ -5,7 +5,7 @@
 <style>
   .mainContainer {
     min-height: 100vh;
-    background: linear-gradient(to right, #000428, #040466);
+    background: rgb(104, 116, 184);
     color: black;
     position: relative;
     display: flex;

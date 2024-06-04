@@ -76,6 +76,7 @@
   }
 
   let model = models.find((model) => model.documentID === documentID);
+
   model = reorderKeys(keyOrder, model);
 
   if (!model) {
@@ -376,121 +377,60 @@
   </button>
 
   <form on:submit|preventDefault={saveChanges}>
-    {#each Object.entries(model || {}) as [key, value]}
-      {#if key !== "documentID" && key !== "sections"}
-        <label>
-          <p class="above">{customLabels[key] || key}</p>
-          {#if key === "imageURL"}
-            {#if showErrorImageMessage}
-              <p
-                class="error-above-img"
-                transition:fly={{ y: 0, duration: 2000 }}
-              >
-                {errorImageMessage}
-              </p>
-            {/if}
-            <div class="custom-file-input">
-              <input
-                id="png-input"
-                type="file"
-                required
-                on:change={(event) => handleImageFileChange(event, key)}
-              />
-              {#if model[key] !== ""}
-                {#if formData[key] === model[key] && formData[key] !== ""}
-                  <div style="display: flex; align-items: center;">
-                    <button
-                      type="button"
-                      on:click={(event) => {
-                        event.preventDefault();
-                        formData[key] = "";
-                      }}
-                      class="reset-button"
-                      style="border: none; margin-top: 15px;"
-                    >
-                      <Trash style="color: red; width: 20px; height: 20px;" />
-                    </button>
-                    <p style="margin-top: 20px; margin-left: 15px">
-                      "model.png" è attualmente disponibile online per questo
-                      modello
-                    </p>
-                  </div>
-                {/if}
-              {/if}
-
-              {#if formData[key] === ""}
-                <div class="file-info">
-                  <p style="margin-top: 20px; color: red;">
-                    Nessun file "{allowedExtensions[key]}" è attualmente
-                    disponibile per questo modello
-                  </p>
-                </div>
-              {/if}
-
-              {#if formData[key] !== model[key] && formData[key] !== ""}
-                <button
-                  type="button"
-                  on:click={(event) => {
-                    event.preventDefault();
-                    resetFileInput(key);
-                  }}
-                  class="reset-button-side"
-                  style="border: none; margin-top: 15px;"
+    {#if model}
+      {#each Object.entries(model || {}) as [key, value]}
+        {#if key !== "documentID" && key !== "sections"}
+          <label>
+            <p class="above">{customLabels[key] || key}</p>
+            {#if key === "imageURL"}
+              {#if showErrorImageMessage}
+                <p
+                  class="error-above-img"
+                  transition:fly={{ y: 0, duration: 2000 }}
                 >
-                  <Trash
-                    style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
-                  />
-                </button>
+                  {errorImageMessage}
+                </p>
               {/if}
-            </div>
-          {:else if key === "videoURL"}
-            {#if showErrorVideoMessage}
-              <p
-                class="error-above-video"
-                transition:fly={{ y: 0, duration: 2000 }}
-              >
-                {errorVideoMessage}
-              </p>
-            {/if}
-            <div class="custom-file-input">
-              <input
-                id="mp4-input"
-                type="file"
-                on:change={(event) => handleVideoFileChange(event, key)}
-              />
-              {#if model[key] !== ""}
-                {#if formData[key] === model[key] && formData[key] !== ""}
-                  <div style="display: flex; align-items: center;">
-                    <button
-                      type="button"
-                      on:click={(event) => {
-                        event.preventDefault();
-                        formData[key] = "";
-                      }}
-                      class="reset-button"
-                      style="border: none; margin-top: 15px;"
-                    >
-                      <Trash style="color: red; width: 20px; height: 20px;" />
-                    </button>
-                    <p style="margin-top: 20px; margin-left: 15px">
-                      "video.mp4" è attualmente disponibile online per questo
-                      modello
+              <div class="custom-file-input">
+                <input
+                  id="png-input"
+                  type="file"
+                  required
+                  on:change={(event) => handleImageFileChange(event, key)}
+                />
+
+                {#if model[key] !== ""}
+                  {#if formData[key] === model[key] && formData[key] !== ""}
+                    <div style="display: flex; align-items: center;">
+                      <button
+                        type="button"
+                        on:click={(event) => {
+                          event.preventDefault();
+                          formData[key] = "";
+                        }}
+                        class="reset-button"
+                        style="border: none; margin-top: 15px;"
+                      >
+                        <Trash style="color: red; width: 20px; height: 20px;" />
+                      </button>
+                      <p style="margin-top: 20px; margin-left: 15px">
+                        "model.png" è attualmente disponibile online per questo
+                        modello
+                      </p>
+                    </div>
+                  {/if}
+                {/if}
+
+                {#if formData[key] === ""}
+                  <div class="file-info">
+                    <p style="margin-top: 20px; color: red;">
+                      Nessun file "{allowedExtensions[key]}" è attualmente
+                      disponibile per questo modello
                     </p>
                   </div>
                 {/if}
-              {/if}
 
-              {#if formData[key] === ""}
-                <div class="file-info">
-                  <p style="margin-top: 20px; color: red;">
-                    Nessun file "{allowedExtensions[key]}" è attualmente
-                    disponibile per questo modello
-                  </p>
-                </div>
-              {/if}
-
-              {#if formData[key] !== model[key] && formData[key] !== ""}
-                <div style="display: flex; align-items: center;">
+                {#if formData[key] !== model[key] && formData[key] !== ""}
                   <button
                     type="button"
                     on:click={(event) => {
@@ -504,57 +444,183 @@
                       style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
                     />
                   </button>
-                </div>
+                {/if}
+              </div>
+            {:else if key === "videoURL"}
+              {#if showErrorVideoMessage}
+                <p
+                  class="error-above-video"
+                  transition:fly={{ y: 0, duration: 2000 }}
+                >
+                  {errorVideoMessage}
+                </p>
               {/if}
-            </div>
-          {:else if key === "glbURL"}
-            {#if showErrorGLBMessage}
-              <p
-                class="error-above-glb"
-                transition:fly={{ y: 0, duration: 2000 }}
-              >
-                {errorGLBMessage}
-              </p>
-            {/if}
-            <div class="custom-file-input">
-              <input
-                id="glb-input"
-                type="file"
-                on:change={(event) => handleGLBFileChange(event, key)}
-              />
-              {#if model[key] !== ""}
-                {#if formData[key] === model[key] && formData[key] !== ""}
+              <div class="custom-file-input">
+                <input
+                  id="mp4-input"
+                  type="file"
+                  on:change={(event) => handleVideoFileChange(event, key)}
+                />
+                {#if model[key] !== ""}
+                  {#if formData[key] === model[key] && formData[key] !== ""}
+                    <div style="display: flex; align-items: center;">
+                      <button
+                        type="button"
+                        on:click={(event) => {
+                          event.preventDefault();
+                          formData[key] = "";
+                        }}
+                        class="reset-button"
+                        style="border: none; margin-top: 15px;"
+                      >
+                        <Trash style="color: red; width: 20px; height: 20px;" />
+                      </button>
+                      <p style="margin-top: 20px; margin-left: 15px">
+                        "video.mp4" è attualmente disponibile online per questo
+                        modello
+                      </p>
+                    </div>
+                  {/if}
+                {/if}
+
+                {#if formData[key] === ""}
+                  <div class="file-info">
+                    <p style="margin-top: 20px; color: red;">
+                      Nessun file "{allowedExtensions[key]}" è attualmente
+                      disponibile per questo modello
+                    </p>
+                  </div>
+                {/if}
+
+                {#if formData[key] !== model[key] && formData[key] !== ""}
                   <div style="display: flex; align-items: center;">
                     <button
                       type="button"
                       on:click={(event) => {
                         event.preventDefault();
-                        formData[key] = "";
+                        resetFileInput(key);
                       }}
-                      class="reset-button"
+                      class="reset-button-side"
                       style="border: none; margin-top: 15px;"
                     >
-                      <Trash style="color: red; width: 20px; height: 20px;" />
+                      <Trash
+                        style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                      />
                     </button>
-                    <p style="margin-top: 20px; margin-left: 15px">
-                      "model.glb" è attualmente disponibile online per questo
-                      modello
+                  </div>
+                {/if}
+              </div>
+            {:else if key === "glbURL"}
+              {#if showErrorGLBMessage}
+                <p
+                  class="error-above-glb"
+                  transition:fly={{ y: 0, duration: 2000 }}
+                >
+                  {errorGLBMessage}
+                </p>
+              {/if}
+              <div class="custom-file-input">
+                <input
+                  id="glb-input"
+                  type="file"
+                  on:change={(event) => handleGLBFileChange(event, key)}
+                />
+                {#if model[key] !== ""}
+                  {#if formData[key] === model[key] && formData[key] !== ""}
+                    <div style="display: flex; align-items: center;">
+                      <button
+                        type="button"
+                        on:click={(event) => {
+                          event.preventDefault();
+                          formData[key] = "";
+                        }}
+                        class="reset-button"
+                        style="border: none; margin-top: 15px;"
+                      >
+                        <Trash style="color: red; width: 20px; height: 20px;" />
+                      </button>
+                      <p style="margin-top: 20px; margin-left: 15px">
+                        "model.glb" è attualmente disponibile online per questo
+                        modello
+                      </p>
+                    </div>
+                  {/if}
+                {/if}
+
+                {#if formData[key] === ""}
+                  <div class="file-info">
+                    <p style="margin-top: 20px; color: red;">
+                      Nessun file "{allowedExtensions[key]}" è attualmente
+                      disponibile per questo modello
                     </p>
                   </div>
                 {/if}
-              {/if}
 
-              {#if formData[key] === ""}
-                <div class="file-info">
-                  <p style="margin-top: 20px; color: red;">
-                    Nessun file "{allowedExtensions[key]}" è attualmente
-                    disponibile per questo modello
-                  </p>
-                </div>
+                {#if formData[key] !== model[key] && formData[key] !== ""}
+                  <div style="display: flex; align-items: center;">
+                    <button
+                      type="button"
+                      on:click={(event) => {
+                        event.preventDefault();
+                        resetFileInput(key);
+                      }}
+                      class="reset-button-side"
+                      style="border: none; margin-top: 15px;"
+                    >
+                      <Trash
+                        style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
+                      />
+                    </button>
+                  </div>
+                {/if}
+              </div>
+            {:else if key === "usdzURL"}
+              {#if showErrorUSDZMessage}
+                <p
+                  class="error-above-usdz"
+                  transition:fly={{ y: 0, duration: 2000 }}
+                >
+                  {errorUSDZMessage}
+                </p>
               {/if}
+              <div class="custom-file-input">
+                <input
+                  id="usdz-input"
+                  type="file"
+                  on:change={(event) => handleUSDZFileChange(event, key)}
+                />
+                {#if model[key] !== ""}
+                  {#if formData[key] === model[key] && formData[key] !== ""}
+                    <div style="display: flex; align-items: center;">
+                      <button
+                        type="button"
+                        on:click={(event) => {
+                          event.preventDefault();
+                          formData[key] = "";
+                        }}
+                        class="reset-button"
+                        style="border: none; margin-top: 15px;"
+                      >
+                        <Trash style="color: red; width: 20px; height: 20px;" />
+                      </button>
+                      <p style="margin-top: 20px; margin-left: 15px">
+                        "model.usdz" è attualmente disponibile online per questo
+                        modello
+                      </p>
+                    </div>
+                  {/if}
+                {/if}
 
-              {#if formData[key] !== model[key] && formData[key] !== ""}
-                <div style="display: flex; align-items: center;">
+                {#if formData[key] === ""}
+                  <div class="file-info">
+                    <p style="margin-top: 20px; color: red;">
+                      Nessun file "{allowedExtensions[key]}" è attualmente
+                      disponibile per questo modello
+                    </p>
+                  </div>
+                {/if}
+
+                {#if formData[key] !== model[key] && formData[key] !== ""}
                   <button
                     type="button"
                     on:click={(event) => {
@@ -568,97 +634,35 @@
                       style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
                     />
                   </button>
-                </div>
-              {/if}
-            </div>
-          {:else if key === "usdzURL"}
-            {#if showErrorUSDZMessage}
-              <p
-                class="error-above-usdz"
-                transition:fly={{ y: 0, duration: 2000 }}
-              >
-                {errorUSDZMessage}
-              </p>
-            {/if}
-            <div class="custom-file-input">
-              <input
-                id="usdz-input"
-                type="file"
-                on:change={(event) => handleUSDZFileChange(event, key)}
-              />
-              {#if model[key] !== ""}
-                {#if formData[key] === model[key] && formData[key] !== ""}
-                  <div style="display: flex; align-items: center;">
-                    <button
-                      type="button"
-                      on:click={(event) => {
-                        event.preventDefault();
-                        formData[key] = "";
-                      }}
-                      class="reset-button"
-                      style="border: none; margin-top: 15px;"
-                    >
-                      <Trash style="color: red; width: 20px; height: 20px;" />
-                    </button>
-                    <p style="margin-top: 20px; margin-left: 15px">
-                      "model.usdz" è attualmente disponibile online per questo
-                      modello
-                    </p>
-                  </div>
                 {/if}
-              {/if}
-
-              {#if formData[key] === ""}
-                <div class="file-info">
-                  <p style="margin-top: 20px; color: red;">
-                    Nessun file "{allowedExtensions[key]}" è attualmente
-                    disponibile per questo modello
-                  </p>
-                </div>
-              {/if}
-
-              {#if formData[key] !== model[key] && formData[key] !== ""}
-                <button
-                  type="button"
-                  on:click={(event) => {
-                    event.preventDefault();
-                    resetFileInput(key);
-                  }}
-                  class="reset-button-side"
-                  style="border: none; margin-top: 15px;"
-                >
-                  <Trash
-                    style="color: red; width: 25px; height: 25px; margin-bottom: 10px"
-                  />
-                </button>
-              {/if}
-            </div>
-          {:else}
-            <textarea
-              bind:value={formData[key]}
-              on:input={(event) => handleChange(event, key)}
-              rows="4"
-              required={key === "name" || key === "category" ? true : false}
-              placeholder={`...Inserisci ${customLabels[key] || key}`}
-            />
-          {/if}
-        </label>
-      {/if}
-    {/each}
+              </div>
+            {:else}
+              <textarea
+                bind:value={formData[key]}
+                on:input={(event) => handleChange(event, key)}
+                rows="4"
+                required={key === "name" || key === "category" ? true : false}
+                placeholder={`...Inserisci ${customLabels[key] || key}`}
+              />
+            {/if}
+          </label>
+        {/if}
+      {/each}
+    {/if}
 
     <hr />
 
     {#if formData && formData.sections && formData.sections.length > 0}
       {#each formData.sections as section, i}
         <div class="section-header" transition:fade>
-          <h2>{section.name}</h2>
+          <h2 style="color: black">{section.name}</h2>
 
           <button
             type="button"
             class="add-entry-button"
             on:click={() => addNewEntry(i)}><CirclePlus /></button
           >
-          <h4>[...{section.entries.length} elementi]</h4>
+          <h4 style="color: black">[...{section.entries.length} elementi]</h4>
 
           <button
             type="button"
@@ -712,8 +716,8 @@
                   on:click={() => handleDeleteEntry(i, j)}><Trash2 /></button
                 >
                 <div class="preview">
-                  <h3>Preview:</h3>
-                  <p>
+                  <h3 style="color: black">Preview:</h3>
+                  <p style="color: black">
                     {#if section.entries[j].key !== "" || section.entries[j].value !== ""}
                       <strong>{section.entries[j].key}: </strong>{section
                         .entries[j].value}

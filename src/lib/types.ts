@@ -1,7 +1,7 @@
 export interface Model {
     documentID: string;
-    name?: string;
-    category?: string;
+    name: string;
+    category: string;
     subtitle?: string;
     sections?: {
         name: string,
@@ -10,7 +10,7 @@ export interface Model {
             value: string 
         }[] }[];
     bottom_text?: string;
-    imageURL?: string;
+    imageURL: string;
     videoURL?: string;
     glbURL?: string;
     usdzURL?: string;
