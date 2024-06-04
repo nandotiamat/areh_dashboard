@@ -57,7 +57,7 @@
 
 <div class="authContainer">
   <form on:submit|preventDefault={handleAuthenticate} method="POST">
-    <h1>Login</h1>
+    <h1 style="color: black">Login</h1>
     {#if errorMessage}
       <p class="error">{errorMessage}</p>
     {:else if loginSuccessful}

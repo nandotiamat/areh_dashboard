@@ -51,7 +51,7 @@
   }
 
   form button {
-    background: rgb(4, 4, 236);
+    background: rgb(104, 116, 184);
     color: white;
     border: none;
     padding: 14px 0;
@@ -63,7 +63,7 @@
   }
 
   form button:hover {
-    background: rgb(10, 73, 247);
+    background: rgba(104, 116, 184,0.7);
   }
 
   .above {

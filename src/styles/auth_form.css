@@ -11,19 +11,22 @@
   form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-  }
-
-  form {
-    width: 500px;
-    max-width: 100%;
+    gap: 40px;
+    width: 30%;
+    max-width: 60%;
     margin: 0 auto;
+    background-color: rgba(255,255,255,0.7);
+    padding: 20px;
+    border-radius: 20px;
   }
 
   form input {
     width: 100%;
-    padding: 48px;
     font-size: 28px;
+    color: black;
+    background: transparent;
+    padding: 14px;
+    border: none;
   }
 
   h1 {
@@ -33,15 +36,8 @@
 
   form label {
     position: relative;
-    border: 1px solid rgb(10, 10, 189);
-    border-radius: 5px;
-  }
-
-  form input {
-    border: solid 1px blue;
-    background: transparent;
-    color: white;
-    padding: 14px;
+    border: 1px solid rgb(128, 138, 196);
+    border-radius: 10px;
   }
 
   form input:focus {
@@ -50,11 +46,13 @@
   }
 
   form label:focus-within {
-    border-color: blue;
+    border-color: purple;
   }
 
+
+
   form button {
-    background: rgb(7, 7, 216);
+    background: rgb(104, 116, 184);
     color: white;
     border: none;
     padding: 14px 0;
@@ -66,7 +64,7 @@
   }
 
   form button:hover {
-    background: blue;
+    background: rgba(104, 116, 184,0.7);
   }
 
   .above,
@@ -81,11 +79,14 @@
   }
 
   .above {
+        pointer-events: none;
+    color: white;
+
     top: 0;
     left: 24px;
-    background: rgb(14, 14, 231);
-    border: 1px solid rgb(0, 47, 255);
-    font-size: 0.7rem;
+    background: rgb(92, 107, 194);
+    border: 1px solid rgb(174, 179, 209);
+    font-size: 16px;
   }
 
   .center {
@@ -96,14 +97,14 @@
   }
 
   .error {
-    color: coral;
-    font-size: 0.9rem;
+    color: red;
+    font-size: 16px;
     text-align: center;
   }
 
   .login-successful {
-    color: greenyellow;
-    font-size: 0.9rem;
+    color: green;
+    font-size: 16px;
     text-align: center;
   }
 
