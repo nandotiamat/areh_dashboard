@@ -32,7 +32,7 @@
   }
 
   textarea::placeholder {
-    color: black;
+    color: gray;
   }
 
   form textarea:focus {

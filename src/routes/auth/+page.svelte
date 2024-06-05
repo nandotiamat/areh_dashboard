@@ -1,6 +1,7 @@
 <script>
   import { goto } from "$app/navigation";
   import { error } from "@sveltejs/kit";
+  import { Mail, LockKeyhole } from "lucide-svelte";
 
   let email = "";
   let password = "";
@@ -64,6 +65,7 @@
       <p class="login-successful">Login andato a buon fine</p>
     {/if}
     <label>
+      <Mail class="form-icon" />
       <p class={email ? "above" : "center"}>Email</p>
       <input
         bind:value={email}
@@ -74,6 +76,8 @@
       />
     </label>
     <label>
+      <LockKeyhole />
+
       <p class={password ? "above" : "center"}>Password</p>
       <input
         bind:value={password}

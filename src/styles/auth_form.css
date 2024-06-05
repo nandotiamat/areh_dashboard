@@ -38,7 +38,15 @@
     position: relative;
     border: 1px solid rgb(128, 138, 196);
     border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
   }
+  .form-icon {
+  color: rgb(128, 138, 196); 
+  font-size: 24px; 
+  margin-left: 10px;
+}
 
   form input:focus {
     border: none;
