@@ -65,7 +65,9 @@
       <p class="login-successful">Login andato a buon fine</p>
     {/if}
     <label>
-      <Mail class="form-icon" />
+      <div class="form-icon">
+        <Mail />
+      </div>
       <p class={email ? "above" : "center"}>Email</p>
       <input
         bind:value={email}
@@ -76,7 +78,9 @@
       />
     </label>
     <label>
-      <LockKeyhole />
+      <div class="form-icon">
+        <LockKeyhole />
+      </div>
 
       <p class={password ? "above" : "center"}>Password</p>
       <input
