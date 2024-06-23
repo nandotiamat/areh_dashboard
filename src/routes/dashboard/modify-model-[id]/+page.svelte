@@ -395,7 +395,6 @@
                 <input
                   id="png-input"
                   type="file"
-                  required
                   on:change={(event) => handleImageFileChange(event, key)}
                 />
 
