@@ -1,4 +1,5 @@
 import { adminAuth } from "$lib/server/firebase_admin.js";
+import {auth} from "$lib/server/firebase_client.js";
 import { redirect, type Handle } from "@sveltejs/kit";
 import type {DecodedIdToken} from "firebase-admin/auth";
 
@@ -7,7 +8,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     const session = event.cookies.get("session") ?? "";
 
     if (!session || session === "") {
-        console.info("No session found");
+        //console.info("No session found");
         event.locals.userSession = undefined;
     } else {
         let decodedClaims: DecodedIdToken | undefined = undefined;
@@ -29,7 +30,12 @@ export const handle: Handle = async ({ event, resolve }) => {
         }
     }
 
-    if (event.url.pathname !== "/auth" && !event.locals.userSession) {
+    // if (event.url.pathname !== "/auth" && !event.locals.userSession) {
+    //     throw redirect(303, "/auth");
+    // }
+
+    const publicPaths = ["/", "/auth"];
+    if (!publicPaths.includes(event.url.pathname) && !event.locals.userSession) {
         throw redirect(303, "/auth");
     }
 

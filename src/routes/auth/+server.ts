@@ -34,9 +34,8 @@ export async function POST({ request }: { request: Request }) {
 
 
     const expiresIn = 60 * 60 * 24 * 5 * 1000;
-
     const sessionCookie = await adminAuth.createSessionCookie(userIdToken, { expiresIn });
-    console.log(sessionCookie)
+    // console.log(sessionCookie)
 
     // try{
     //     await adminAuth.setCustomUserClaims(user.uid, {admin: true});
@@ -54,6 +53,7 @@ export async function POST({ request }: { request: Request }) {
         maxAge: expiresIn,
         httpOnly: true,
         secure: true,
+        path: '/',
     };
 
     const header = new Headers();

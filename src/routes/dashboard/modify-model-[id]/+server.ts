@@ -1,4 +1,4 @@
-import { db, storage } from "$lib/server/firebase_client.js";
+import { auth, db, storage } from "$lib/server/firebase_client.js";
 import {arrayRemove, collection, deleteDoc, doc, getDocs, query, updateDoc, where} from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytesResumable, deleteObject, listAll } from "firebase/storage";
 import { adminBucket } from "$lib/server/firebase_admin.js";
@@ -57,6 +57,8 @@ async function uploadFileAndGetURL(fieldName: string, fileName: string, document
 
 
 export async function POST({ request }: { request: Request }) {
+    
+
     try {
         const formData = await request.formData();
         const documentID = formData.get('documentID') as string;
