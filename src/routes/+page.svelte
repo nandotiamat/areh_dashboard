@@ -1,6 +1,14 @@
+<!-- App.svelte -->
 <script>
   import { goto } from "$app/navigation";
-  import CookieBanner from "$lib/componenets/CookieBanner.svelte";
+  import Footer from "$lib/componenets/Footer.svelte";
+
+  function scrollToFooter() {
+    const footer = document.querySelector(".footer");
+    if (footer) {
+      footer.scrollIntoView({ behavior: "smooth" });
+    }
+  }
 </script>
 
 <div class="container">
@@ -13,17 +21,32 @@
     <p>Se sei un admin, loggati per gestire i modelli disponibli.</p>
   </div>
 
-  <button
-    class="login-button"
-    on:click={() => {
-      goto("/auth");
-    }}
-  >
-    Login
-  </button>
+  <div style="margin-top: 150px">
+    <button
+      class="login-button"
+      on:click={() => {
+        goto("/auth");
+      }}
+    >
+      Login
+    </button>
+  </div>
 
-  <CookieBanner />
+  <button
+    class="scroll-indicator"
+    on:click={scrollToFooter}
+    on:keydown={(event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        scrollToFooter();
+      }
+    }}
+    aria-label="Scroll to footer"
+  >
+    <span>▼</span>
+  </button>
 </div>
+
+<Footer />
 
 <style>
   :global(body) {
@@ -40,15 +63,16 @@
   }
 
   .container {
-    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     background-image: url("/images/splash_page_bg.png");
     background-size: cover;
     background-position: center;
+    padding-bottom: 100px; /* Ensure there's enough space for scrolling */
+    position: relative;
   }
 
   .logo {
@@ -67,7 +91,6 @@
   }
 
   .login-button {
-    margin-top: 60px;
     padding: 18px 30px;
     background-color: rgba(146, 177, 177, 0.178);
     color: #ffffff;
@@ -84,5 +107,39 @@
   .login-button:hover {
     background-color: rgba(25, 92, 92, 0.4);
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 24px;
+    background: none;
+    border: none;
+    animation: bounce 2s infinite;
+    outline: none; /* Remove default focus outline */
+  }
+
+  .scroll-indicator:focus {
+    outline: none; /* Remove focus outline */
+  }
+
+  @keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
   }
 </style>
