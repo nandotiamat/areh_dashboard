@@ -34,7 +34,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     //     throw redirect(303, "/auth");
     // }
 
-    const publicPaths = ["/", "/auth"];
+    const publicPaths = ["/", "/auth", "/legal/cookie-policy", "/legal/privacy-policy"];
     if (!publicPaths.includes(event.url.pathname) && !event.locals.userSession) {
         throw redirect(303, "/auth");
     }

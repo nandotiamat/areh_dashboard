@@ -8,13 +8,6 @@
 
   <div class="footer-content">
     <div class="footer-section">
-      <h4>About Us</h4>
-      <p>
-        We are a company dedicated to providing the best service possible. Our
-        goal is to ensure customer satisfaction and quality in every aspect.
-      </p>
-    </div>
-    <div class="footer-section">
       <h4>Contact</h4>
       <p class="contact-info">
         <span>
@@ -39,18 +32,10 @@
     </div>
 
     <div class="footer-section">
-      <h4>Copyright</h4>
-      <p>&copy; 2024 Your Website Name</p>
-    </div>
-    <div class="footer-section">
       <h4>Privacy Policy</h4>
       <p>
         <a href="/legal/privacy-policy" style="color: #fff;">Privacy Policy</a>
       </p>
-    </div>
-    <div class="footer-section">
-      <h4>Terms of Use</h4>
-      <p><a href="/terms-of-use" style="color: #fff;">Terms of Use</a></p>
     </div>
   </div>
 </div>
@@ -69,7 +54,7 @@
 
   .footer-content {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
     align-items: flex-start;
     max-width: 1200px;
     width: 100%;
